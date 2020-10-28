@@ -1,0 +1,49 @@
+= Hotkey Detective
+
+*Hotkey Detective* is a small utility for investigating what application holds a
+global hotkey under Windows 8 and later.
+
+The utility has been created as a matter of need, because I couldn't find any
+working and simple program that would just show me what process has stolen my
+hotkey, and prevents me from "zażółcania gęślej jaźni".
+
+== Quick guide
+
+Hotkey Detective is shipped as a ZIP archive and can be downloaded from the
+"Releases" page.
+
+Every archive contains two directories: `x64` and `x86`. For x64 Windows, you
+will of course run the executable from the `x64` directory but if it didn't find
+the hotkey, then try x86 version. For x86 Windows you don't have much choices,
+you just run the x86 version.
+
+.Running steps
+1. Enter the appropriate directory.
+2. Run `hotkey_detective.exe`.
+3. If the console doesn't display any errors, press the stolen hotkey and
+Hotkey Detective will show you a path to the guilty process.
+4. When you're done, exit the application with `CTRL+C` to close everything
+gracefully.
+
+== Some theory for curious
+
+=== The problem
+
+When you Google "show hotkey process", you'll surely get many results that
+propose using *Hotkey Explorer* to solve your problem. This is a powerful tool,
+I used this many times, but on Windows 7. Apparently Hotkey Explorer doesn't
+work very well on Windows 8 and later.
+
+The core of the problem is probably the way how Hotkey Explorer finds out what
+program holds which hotkey. It essentially tries every possible combination and
+checks what program will react. Apparently Windows 7 had a possibility to
+inhibit the keystrokes, but it's no longer valid for Windows 8+, and all
+keystrokes are sent to the system and other programs. Can you imagine the
+effect?
+
+=== The solution
+
+Hotkey Detective uses a similar approach, it hooks to every process and waits
+for it to receive a hotkey command. The biggest difference is that Hotkey
+Detective doesn't force trying all hotkeys. You must press the stolen hotkey
+and Hotkey Detective will show you what process received the command.
