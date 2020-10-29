@@ -4,8 +4,6 @@
 #include <windows.h>
 
 extern DWORD *thread_id;
-extern const char GETMESSAGE_HOOK_PROC[];
-extern const char WNDPROC_HOOK_PROC[];
 
 /*!
  * \brief Creates a memory mapped file for sharing this thread's ID.
@@ -18,35 +16,6 @@ extern const char WNDPROC_HOOK_PROC[];
  * \return A HANDLE to the memory mapped file object, or NULL on failure.
  */
 HANDLE create_map_file(void);
-
-/*!
- * \brief Loads and returns a handle to the DLL with the hook procedure.
- *
- * The hook procedure must be kept in a separate DLL to be properly injected.
- * The handle must be closed using the \c FreeLibrary \c function.
- *
- * \return A HMODULE pointing to the loaded library.
- */
-HMODULE get_hook_library(void);
-
-/*!
- * \brief Returns a handle to the hook procedure.
- *
- * \param[in] hook_library	a handle to the DLL keeping the hook procedure
- * \param[in] proc_name		a name of the procedure
- * \return A handle to the hook procedure or NULL when not found.
- */
-HOOKPROC get_hook_proc(HMODULE hook_library, const char* proc_name);
-
-/*!
- * \brief Sets a hook on all running threads.
- *
- * \param[in] hook_library	a handle to the DLL keeping the hook procedure
- * \param[in] id_hook		an ID of the hook
- * \param[in] hook_proc		a handle to the hook from the above library
- * \return A handle to the hook object, needed to close it later.
- */
-HHOOK set_hook(HMODULE hook_library, int id_hook, HOOKPROC hook_proc);
 
 /*!
  * \brief Gets a memory view of the memory mapped file.

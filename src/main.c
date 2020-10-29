@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include "core.h"
+#include "dllmain.h"
 
 DWORD *thread_id;
 
@@ -32,34 +33,13 @@ int main() {
 
 	SetConsoleCtrlHandler(console_handler, TRUE);
 
-	HMODULE hook_library = get_hook_library();
-	if (!hook_library) {
+	HHOOK getmessage_hook_handle = set_hook(WH_GETMESSAGE);
+	if (!getmessage_hook_handle) {
 		rv = -1;
 		goto map_view_created;
 	}
 
-	HOOKPROC getmessage_hook_proc = get_hook_proc(hook_library,
-												   GETMESSAGE_HOOK_PROC);
-	if (!getmessage_hook_proc) {
-		rv = -1;
-		goto library_loaded;
-	}
-
-	HOOKPROC wndproc_hook_proc = get_hook_proc(hook_library, WNDPROC_HOOK_PROC);
-	if (!wndproc_hook_proc) {
-		rv = -1;
-		goto library_loaded;
-	}
-
-	HHOOK getmessage_hook_handle = set_hook(hook_library, WH_GETMESSAGE,
-										 getmessage_hook_proc);
-	if (!getmessage_hook_handle) {
-		rv = -1;
-		goto library_loaded;
-	}
-
-	HHOOK wndproc_hook_handle = set_hook(hook_library, WH_CALLWNDPROC,
-									  getmessage_hook_proc);
+	HHOOK wndproc_hook_handle = set_hook(WH_CALLWNDPROC);
 	if (!wndproc_hook_handle) {
 		rv = -1;
 		goto hooks_set;
@@ -69,7 +49,7 @@ int main() {
 	char key_buffer[32];
 	DWORD proc_id;
 
-	printf("     === HotKey Detective v0.1 ===\n\n");
+	printf("        === HotKey Detective v0.1 ===\n\n");
 	printf("Waiting for hot-keys, press CTRL+C to exit...\n\n");
 
 	while (GetMessageW(&msg, NULL, 0, 0) != 0) {
@@ -89,8 +69,6 @@ int main() {
 hooks_set:
 	UnhookWindowsHookEx(wndproc_hook_handle);
 	UnhookWindowsHookEx(getmessage_hook_handle);
-library_loaded:
-	FreeLibrary(hook_library);
 map_view_created:
 	UnmapViewOfFile(thread_id);
 map_file_created:

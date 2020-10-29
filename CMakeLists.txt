@@ -6,5 +6,7 @@ set(CMAKE_C_STANDARD 99)
 add_executable(hotkey_detective src/main.c src/core.c res/resources.rc)
 add_library(hotkey_hook SHARED src/dllmain.c)
 
+target_link_libraries(hotkey_detective hotkey_hook)
+
 target_include_directories(hotkey_detective PUBLIC include)
 target_include_directories(hotkey_hook PUBLIC include)

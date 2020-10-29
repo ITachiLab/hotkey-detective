@@ -6,12 +6,7 @@
 
 #include <stdio.h>
 #include "core.h"
-
-static const wchar_t MMF_NAME[] = L"Local\\HotkeyDetectiveThreadId";
-static const wchar_t LIB_NAME[] = L"hotkey_hook.dll";
-
-const char GETMESSAGE_HOOK_PROC[] = "getmessage_hook";
-const char WNDPROC_HOOK_PROC[] = "wndproc_hook";
+#include "dllmain.h"
 
 HANDLE create_map_file(void) {
 	HANDLE map_file_handle = CreateFileMappingW(
@@ -22,33 +17,6 @@ HANDLE create_map_file(void) {
 	}
 
 	return map_file_handle;
-}
-
-HMODULE get_hook_library(void) {
-	HMODULE lib = LoadLibraryW(LIB_NAME);
-	if (!lib) {
-		printf("Couldn't load the hook library: %lu\n", GetLastError());
-	}
-
-	return lib;
-}
-
-HOOKPROC get_hook_proc(HMODULE hook_library, const char* proc_name) {
-	HOOKPROC hook_proc = (HOOKPROC)GetProcAddress(hook_library, proc_name);
-	if (!hook_proc) {
-		printf("Couldn't find a hook procedure: %lu\n", GetLastError());
-	}
-
-	return hook_proc;
-}
-
-HHOOK set_hook(HMODULE hook_library, int id_hook, HOOKPROC hook_proc) {
-	HHOOK hook_handle = SetWindowsHookExW(id_hook, hook_proc, hook_library, 0);
-	if (!hook_handle) {
-		printf("Couldn't apply hook: %lu\n", GetLastError());
-	}
-
-	return hook_handle;
 }
 
 DWORD *get_memory_view(HANDLE map_file) {

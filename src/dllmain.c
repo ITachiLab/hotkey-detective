@@ -9,16 +9,18 @@
 
 HANDLE mapping_handle;
 DWORD *listening_thread_id;
+HINSTANCE dll_hinst;
 
 BOOL WINAPI DllMain(HINSTANCE h_inst, DWORD reason, LPVOID reserved) {
 	switch(reason)
 	{
 		case DLL_PROCESS_ATTACH:
-			mapping_handle = OpenFileMapping(
-					FILE_MAP_READ, FALSE, "Local\\HotkeyDetectiveThreadId");
+			dll_hinst = h_inst;
+
+			mapping_handle = OpenFileMappingW(FILE_MAP_READ, FALSE, MMF_NAME);
 			if (!mapping_handle) {
 				OutputDebugString("Couldn't open memory file mapping.");
-				return FALSE;
+				break;
 			}
 
 			listening_thread_id = MapViewOfFile(
@@ -65,4 +67,21 @@ LRESULT CALLBACK wndproc_hook(int n_code, WPARAM w_param, LPARAM l_param) {
 	}
 
 	return CallNextHookEx(NULL, n_code, w_param, l_param);
+}
+
+HHOOK set_hook(int id_hook) {
+	HOOKPROC hook_proc;
+
+	if (id_hook == WH_GETMESSAGE) {
+		hook_proc = getmessage_hook;
+	} else {
+		hook_proc = wndproc_hook;
+	}
+
+	HHOOK hook_handle = SetWindowsHookExW(id_hook, hook_proc, dll_hinst, 0);
+	if (!hook_handle) {
+		printf("Couldn't apply hook: %lu\n", GetLastError());
+	}
+
+	return hook_handle;
 }
