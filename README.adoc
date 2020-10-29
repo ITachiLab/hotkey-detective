@@ -19,7 +19,7 @@ you just run the x86 version.
 
 .Running steps
 1. Enter the appropriate directory.
-2. Run `hotkey_detective.exe`.
+2. Run `hotkey_detective.exe` as administrator.
 3. If the console doesn't display any errors, press the stolen hotkey and
 Hotkey Detective will show you a path to the guilty process.
 4. When you're done, exit the application with `CTRL+C` to close everything
