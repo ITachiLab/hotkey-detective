@@ -42,8 +42,8 @@ BOOL WINAPI console_handler(DWORD signal);
 /*!
  * \brief Returns a full path of the process EXE by its ID.
  *
- * \param[in]	proc_id a process ID
- * \param[out]	buff	a pointer to the buffer which will receive the EXE path
+ * \param[in]   proc_id a process ID
+ * \param[out]  buff    a pointer to the buffer which will receive the EXE path
  * \return If the function succeeds, the return value is the number of
  * characters written to the buffer. In case of the error, the return value is
  * 0.
@@ -57,17 +57,17 @@ DWORD get_proc_path(DWORD proc_id, wchar_t *buff);
  * converts it to the string form (like: ALT + A), and writes the result to
  * \c buf \c.
  *
- * @param[in]	hotkey_lparam	an lParam from WM_HOTKEY message
- * @param[out]	buf				a buffer to which the string representation will
- * 								be written, must be 32 bytes long or more
+ * @param[in]   hotkey_lparam   an lParam from WM_HOTKEY message
+ * @param[out]  buf             a buffer to which the string representation will
+ *                              be written, must be 32 bytes long or more
  */
 void keystroke_to_str(LPARAM hotkey_lparam, char *buf);
 
 /*!
  * \brief Displays the information about a found hook.
  *
- * @param[in] key_stroke	a string containing the hotkey sequence
- * @param[in] proc_path 	a path to the process owning the hotkey
+ * @param[in] key_stroke    a string containing the hotkey sequence
+ * @param[in] proc_path     a path to the process owning the hotkey
  */
 void display_info(char *key_stroke, wchar_t *proc_path);
 

@@ -30,7 +30,7 @@ LRESULT CALLBACK wndproc_hook(int n_code, WPARAM w_param, LPARAM l_param);
 /*!
  * \brief Sets a hook on all running threads.
  *
- * \param[in] id_hook	an ID of the hook
+ * \param[in] id_hook   an ID of the hook
  * \return A handle to the hook object, needed to close it later, or NULL when
  * the specified id_hook is not supported.
  */
