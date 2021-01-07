@@ -8,7 +8,7 @@
 #include "dllmain.h"
 
 HANDLE mapping_handle;
-DWORD *listening_thread_id;
+HWND *listening_thread_id;
 HINSTANCE dll_hinst;
 
 BOOL WINAPI DllMain(HINSTANCE h_inst, DWORD reason, LPVOID reserved) {
@@ -47,8 +47,9 @@ LRESULT CALLBACK getmessage_hook(int n_code, WPARAM w_param, LPARAM l_param) {
         MSG *msg = (MSG *)l_param;
 
         if (LOWORD(msg->message) == WM_HOTKEY) {
-            PostThreadMessageW(*listening_thread_id, WM_NULL, (WPARAM)msg->hwnd,
-                               msg->lParam);
+            OutputDebugString("WH_GETMESSAGE");
+            PostMessageW(*listening_thread_id, WM_NULL,
+                               (WPARAM)msg->hwnd, msg->lParam);
         }
     }
 
@@ -60,8 +61,9 @@ LRESULT CALLBACK wndproc_hook(int n_code, WPARAM w_param, LPARAM l_param) {
         CWPSTRUCT *cwp = (CWPSTRUCT *)l_param;
 
         if (LOWORD(cwp->message) == WM_HOTKEY) {
-            PostThreadMessageW(*listening_thread_id, WM_NULL, (WPARAM)cwp->hwnd,
-                               cwp->lParam);
+            OutputDebugString("WNDPROC");
+            PostMessageW(*listening_thread_id, WM_NULL,
+                               (WPARAM)cwp->hwnd, cwp->lParam);
         }
     }
 

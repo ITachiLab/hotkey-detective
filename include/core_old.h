@@ -1,5 +1,5 @@
-#ifndef HOTKEY_DETECTIVE_INCLUDE_CORE_H_
-#define HOTKEY_DETECTIVE_INCLUDE_CORE_H_
+#ifndef HOTKEY_DETECTIVE_INCLUDE_CORE_OLD_H_
+#define HOTKEY_DETECTIVE_INCLUDE_CORE_OLD_H_
 
 #include <windows.h>
 
@@ -23,7 +23,7 @@ HANDLE create_map_file(void);
  * This function will retrieve the address where the shared memory has been
  * allocated.
  *
- * \param[in] map_file a handle to the memory mapped file object
+ * \param[in] map_file a windowHandle to the memory mapped file object
  * \return An address of the allocated shared memory.
  */
 DWORD *get_memory_view(HANDLE map_file);
