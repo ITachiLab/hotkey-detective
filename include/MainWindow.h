@@ -52,6 +52,8 @@ class MainWindow {
   HotkeyTable hotkeyTable;  //!< An instance of the HotkeyTable
   Core core;                //!< A core utilities
 
+  HICON mainIcon;           //!< A handle of the main icon
+
   /*!
    * \brief Hidden constructor, so the class can be used only as a singleton.
    *
@@ -61,6 +63,9 @@ class MainWindow {
    * @param[in] hInstance an instance of the module associated with the window
    */
   MainWindow(HINSTANCE hInstance);
+
+ public:
+  virtual ~MainWindow();
  public:
   /*!
    * \brief Deleted copy constructor, for singleton purposes.

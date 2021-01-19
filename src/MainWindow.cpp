@@ -6,6 +6,8 @@
  */
 #include "MainWindow.h"
 
+#include "resource.h"
+
 #include <commctrl.h>
 
 static const wchar_t CLASS_NAME[] = APP_TITLE;
@@ -24,6 +26,8 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClassW(&wc);
+
+    mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_MAIN_ICON));
 }
 
 LRESULT MainWindow::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
@@ -84,6 +88,16 @@ void MainWindow::createWindow() {
                                    windowInstance,
                                    NULL);
 
+    if (mainIcon != NULL) {
+        SendMessage(windowHandle, WM_SETICON, ICON_BIG, (LPARAM)mainIcon);
+    }
+
     core.setMainWindowThreadId(windowHandle);
     core.setHooks();
+}
+
+MainWindow::~MainWindow() {
+    if (mainIcon != NULL) {
+        DestroyIcon(mainIcon);
+    }
 }
