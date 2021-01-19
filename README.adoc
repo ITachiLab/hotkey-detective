@@ -18,12 +18,10 @@ the hotkey, then try x86 version. For x86 Windows you don't have much choices,
 you just run the x86 version.
 
 .Running steps
-1. Enter the appropriate directory.
-2. Run `hotkey_detective.exe` as administrator.
-3. If the console doesn't display any errors, press the stolen hotkey and
-Hotkey Detective will show you a path to the guilty process.
-4. When you're done, exit the application with `CTRL+C` to close everything
-gracefully.
+1. Enter the appropriate (x64 or x86) directory.
+2. Run `HotkeyDetective.exe` *as administrator*.
+3. If the window pops up without errors, press the stolen hotkey and Hotkey
+Detective will show you a path to the guilty process.
 
 == Some theory for curious
 
@@ -47,3 +45,45 @@ Hotkey Detective uses a similar approach, it hooks to every process and waits
 for it to receive a hotkey command. The biggest difference is that Hotkey
 Detective doesn't force trying all hotkeys. You must press the stolen hotkey
 and Hotkey Detective will show you what process received the command.
+
+== FAQ
+
+.I don't see any results in the table.
+
+Try running both versions (x86 and x64) when you are using x64 Windows. If you
+are unsure about your system's platform, still try both of them, x64 won't run
+on x86 platform anyway.
+
+Remember to always run it with administrator privileges.
+
+.I did all of the above, and I still don't see any results.
+
+Make sure the hotkey you are trying is truly global. By "truly" I mean it's
+registered with the system and can be triggered even when the owning application
+is in the background.
+
+A good example is `Ctrl + T` in browsers, this works only when the browser is in
+the foreground. Hotkey Detective will not recognize this keystroke as it's not
+registered with the system, only the browser knows about this combination.
+
+.Why can't I remove Hotkey Detective after using?
+
+The system loads the DLL shipped with Hotkey Detective into every process in
+order to spy on hotkeys. When Hotkey Detective is closed, the DLL is still
+present in the processes, and you simply can't remove something the system is
+using.
+
+Unloading the DLL from foreign processes is tricky and I'm currently working on
+it. For the time being, as a workaround I can only suggest restarting your
+system.
+
+== Changelog
+
+=== 1.0.0
+
+The first major that brings up a basic but friendly UI in place of the scary
+console.
+
+=== 0.1.0
+
+The very first version of Hotkey Detective, a simple console application.
