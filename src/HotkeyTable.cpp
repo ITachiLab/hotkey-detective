@@ -1,8 +1,12 @@
-//
-// Created by Itachi on 2020-12-01.
-//
+/*!
+ * \file    HotkeyTable.cpp
+ * \brief   Implementation of the main table.
+ * \author  Itachi
+ * \date    2020-12-01
+ */
 
 #include "HotkeyTable.h"
+
 #include "resource.h"
 
 #include <exception>

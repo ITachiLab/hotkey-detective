@@ -1,9 +1,11 @@
-//
-// Created by Itachi on 2021-01-03.
-//
-
+/*!
+ * \file    MainWindow.cpp
+ * \brief   Implementation of the main window.
+ * \author  Itachi
+ * \date    2021-01-03
+ */
 #include "MainWindow.h"
-#include "../dll/dllmain.h"
+
 #include <commctrl.h>
 
 static const wchar_t CLASS_NAME[] = APP_TITLE;
@@ -17,15 +19,15 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
     InitCommonControlsEx(&icex);
 
     WNDCLASSW wc = {};
-    wc.lpfnWndProc = window_proc;
+    wc.lpfnWndProc = windowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClassW(&wc);
 }
 
-LRESULT MainWindow::window_proc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                                LPARAM lParam) {
+LRESULT MainWindow::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                               LPARAM lParam) {
     MainWindow *self = MainWindow::instance;
 
     switch (uMsg) {

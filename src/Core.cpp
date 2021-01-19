@@ -1,10 +1,15 @@
-//
-// Created by Itachi on 2021-01-06.
-//
+/*!
+ * \file    Core.cpp
+ * \brief   An implementation of the Core module.
+ * \author  Itachi
+ * \date    2021-01-06
+ */
+
+#include "Core.h"
+
+#include "../dll/dllmain.h"
 
 #include <exception>
-#include "Core.h"
-#include "../dll/dllmain.h"
 
 Core::Core() {
     mappedFileHandle = CreateFileMappingW(
@@ -15,17 +20,17 @@ Core::Core() {
         throw std::exception("Couldn't create a memory mapped file.");
     }
 
-    mainWindowThreadId = (HWND *)MapViewOfFile(mappedFileHandle,
-                                                FILE_MAP_ALL_ACCESS,
-                                                0, 0, sizeof(DWORD));
-    if (!mainWindowThreadId) {
+    mainWindowHandle = (HWND *)MapViewOfFile(mappedFileHandle,
+                                             FILE_MAP_ALL_ACCESS,
+                                             0, 0, sizeof(DWORD));
+    if (!mainWindowHandle) {
         CloseHandle(mappedFileHandle);
         throw std::exception("Couldn't create a view of the mapped file.");
     }
 }
 
 Core::~Core() {
-    UnmapViewOfFile(mainWindowThreadId);
+    UnmapViewOfFile(mainWindowHandle);
     CloseHandle(mappedFileHandle);
     UnhookWindowsHookEx(getMessageHookHandle);
     UnhookWindowsHookEx(wndProcHookHandle);
@@ -59,19 +64,19 @@ void Core::keystrokeToString(LPARAM hotkey_lparam, KEYSTROKE_BUFF buf) {
     memset(buf, 0, KEYSTROKE_BUFF_SIZE);
 
     if (LOWORD(hotkey_lparam) & MOD_ALT) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "ALT + ");
+        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Alt + ");
     }
 
     if (LOWORD(hotkey_lparam) & MOD_CONTROL) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "CTRL + ");
+        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Ctrl + ");
     }
 
     if (LOWORD(hotkey_lparam) & MOD_SHIFT) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "SHIFT + ");
+        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Shift + ");
     }
 
     if (LOWORD(hotkey_lparam) & MOD_WIN) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "WIN + ");
+        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Win + ");
     }
 
     UINT scan_code = MapVirtualKeyW(HIWORD(hotkey_lparam), MAPVK_VK_TO_VSC);

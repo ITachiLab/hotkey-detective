@@ -1,13 +1,20 @@
-//
-// Created by Itachi on 2021-01-03.
-//
+/*!
+ * \file    MainWindow.h
+ * \brief   Contains stuff related to the main window.
+ * \author  Itachi
+ * \date    2021-01-03
+ *
+ * Hotkey Detective's main window is enclosed in a class to form a convenient
+ * component easy to interact with.
+ */
 
 #ifndef HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
 #define HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
 
-#include <windows.h>
 #include "HotkeyTable.h"
 #include "Core.h"
+
+#include <windows.h>
 
 #define APP_TITLE L"Hotkey Detective"
 
@@ -35,8 +42,8 @@ class MainWindow {
    * @param lParam
    * @return
    */
-  static LRESULT CALLBACK window_proc(HWND hwnd, UINT uMsg, WPARAM wParam,
-                                      LPARAM lParam);
+  static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
+                                     LPARAM lParam);
 
   HINSTANCE windowInstance; //!< An instance of the module associated with the
                             //!< window
@@ -55,13 +62,41 @@ class MainWindow {
    */
   MainWindow(HINSTANCE hInstance);
  public:
+  /*!
+   * \brief Deleted copy constructor, for singleton purposes.
+   */
   MainWindow(MainWindow &other) = delete;
+
+  /*!
+   * \brief Deleted assigning operator, for singleton purposes.
+   */
   void operator=(const MainWindow &) = delete;
 
+  /*!
+   * \brief Returns the current, or if doesn't exist, the new instance of this
+   *        class.
+   * @param[in] hInstance an instance of the module associated with the window
+   * @return The current, singleton instance of this class, or a new one, when
+   *         not created yet.
+   */
   static MainWindow *GetInstance(HINSTANCE hInstance);
 
+  /*!
+   * \brief Constructs a new main window.
+   *
+   * Aside from creating a new window, this method also sets up the hotkey
+   * hooks.
+   */
   void createWindow();
 
+  /*!
+   * \brief Returns a handle of the main window.
+   *
+   * This function should be called only when the createWindow() has been called
+   * already.
+   *
+   * @return A handle of the main window.
+   */
   HWND getHandle() { return windowHandle; }
 };
 

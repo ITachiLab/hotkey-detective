@@ -1,14 +1,14 @@
 /*!
- * \file main.c
- * \brief A main file of the Hotkey Detective.
- * \author Krzysztof "Itachi" Bąk
+ * \file    main.cpp
+ * \brief   The main file of Hotkey Detective.
+ * \author  Itachi
+ * \date    2020-12-01
  */
 
-#include <stdio.h>
+#include "main.h"
+
 #include <HotkeyTable.h>
 #include <MainWindow.h>
-
-#include "main.h"
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR cmdLine, int cmdShow) {

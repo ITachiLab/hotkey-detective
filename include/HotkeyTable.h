@@ -1,12 +1,20 @@
-//
-// Created by Itachi on 2020-12-01.
-//
+/*!
+ * \file    HotkeyTable.h
+ * \brief   Contains stuff and definitions related to the UI hotkey table.
+ * \author  Itachi
+ * \date    2020-12-01
+ *
+ * The key part of the Hotkey Detective is the table presenting hotkeys and
+ * associated processes. All stuff related to this UI component are included in
+ * this header file.
+ */
 
 #ifndef HOTKEY_DETECTIVE__HOTKEYTABLE_H_
 #define HOTKEY_DETECTIVE__HOTKEYTABLE_H_
 
-#include <windows.h>
 #include <vector>
+
+#include <windows.h>
 
 #define HOTKEY_LENGTH 32
 #define TABLE_COLUMNS 2
@@ -28,7 +36,8 @@ struct TableEntry {
  */
 class HotkeyTable {
  private:
-  HWND tableHwnd; //!< A windowHandle to the table
+  HWND tableHwnd;                  //!< A windowHandle to the table
+
   std::vector<TableEntry> entries; //!< A vector of entries displayed on the
                                    //!< list
  protected:
