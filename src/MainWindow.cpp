@@ -77,7 +77,7 @@ void MainWindow::createWindow() {
                                    WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
                                    CW_USEDEFAULT,
                                    CW_USEDEFAULT,
-                                   400,
+                                   600,
                                    300,
                                    NULL,
                                    NULL,

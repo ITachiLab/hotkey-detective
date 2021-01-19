@@ -13,7 +13,7 @@
 #include <commctrl.h>
 
 WCHAR *COLUMN_TITLES[] = {L"Hotkey", L"Process path"};
-const int COLUMN_WIDTHS[] = {100, 200};
+const int COLUMN_WIDTHS[] = {150, 400};
 
 void HotkeyTable::addEntry(char *hotkey, wchar_t *processPath) {
     TableEntry entry = {};
