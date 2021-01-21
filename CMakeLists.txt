@@ -1,12 +1,19 @@
 cmake_minimum_required(VERSION 3.17)
-project(hotkey_detective C)
+project(hotkey_detective)
 
-set(CMAKE_C_STANDARD 99)
+add_subdirectory(dll)
 
-add_executable(hotkey_detective src/main.c src/core.c res/resources.rc)
-add_library(hotkey_hook SHARED src/dllmain.c)
+set(CMAKE_CXX_STANDARD 17)
 
-target_link_libraries(hotkey_detective hotkey_hook)
+add_definitions(-DUNICODE)
 
-target_include_directories(hotkey_detective PUBLIC include)
-target_include_directories(hotkey_hook PUBLIC include)
+add_executable(HotkeyDetective WIN32
+        src/MainWindow.cpp
+        src/HotkeyTable.cpp
+        src/Core.cpp
+        src/main.cpp
+        res/resources.rc)
+
+target_link_libraries(HotkeyDetective hotkey_hook comctl32)
+
+target_include_directories(HotkeyDetective PUBLIC include res)
