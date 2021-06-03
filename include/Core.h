@@ -11,6 +11,8 @@
 #ifndef HOTKEY_DETECTIVE_SRC_CORE_H_
 #define HOTKEY_DETECTIVE_SRC_CORE_H_
 
+#include "ipc.h"
+
 #include <windows.h>
 
 #define KEYSTROKE_BUFF_SIZE 32
@@ -32,8 +34,7 @@ class Core {
  private:
   HANDLE mappedFileHandle;      //!< A handle of the memory mapped file
 
-  HWND *mainWindowHandle;       //!< A pointer to the shared memory where the
-                                //!< main window's handle will be stored
+  SharedDataPtr sharedData;     //!< A pointer to the shared memory
 
   HHOOK getMessageHookHandle;   //!< A handle of the WH_GETMESSAGE hook
 
@@ -93,12 +94,11 @@ class Core {
    * they must know the main window's handle. This way they can send messages
    * directly to the window's procedure.
    *
-   * The mainWindowHandle pointer is set up to point to a named, shared memory
-   * area.
-   *
    * @param handle a handle of the main window
    */
-  void setMainWindowThreadId(HWND handle) { *mainWindowHandle = handle; }
+  void setMainWindowHandle(HWND handle) { sharedData->windowHandle = handle; }
+
+  SharedDataPtr getSharedData() const;
 };
 
 #endif //HOTKEY_DETECTIVE_SRC_CORE_H_

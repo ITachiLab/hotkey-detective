@@ -7,30 +7,33 @@
 
 #include "Core.h"
 
+#include "ipc.h"
 #include "../dll/dllmain.h"
 
 #include <exception>
 
 Core::Core() {
     mappedFileHandle = CreateFileMappingW(
-            INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(DWORD),
+            INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(SharedData),
             MMF_NAME);
 
     if (!mappedFileHandle) {
         throw std::exception("Couldn't create a memory mapped file.");
     }
 
-    mainWindowHandle = (HWND *)MapViewOfFile(mappedFileHandle,
+    sharedData = (SharedDataPtr)MapViewOfFile(mappedFileHandle,
                                              FILE_MAP_ALL_ACCESS,
-                                             0, 0, sizeof(DWORD));
-    if (!mainWindowHandle) {
+                                             0, 0, sizeof(SharedData));
+    if (!sharedData) {
         CloseHandle(mappedFileHandle);
         throw std::exception("Couldn't create a view of the mapped file.");
     }
+
+    ZeroMemory(sharedData, sizeof(SharedData));
 }
 
 Core::~Core() {
-    UnmapViewOfFile(mainWindowHandle);
+    UnmapViewOfFile(sharedData);
     CloseHandle(mappedFileHandle);
     UnhookWindowsHookEx(getMessageHookHandle);
     UnhookWindowsHookEx(wndProcHookHandle);
@@ -83,4 +86,8 @@ void Core::keystrokeToString(LPARAM hotkey_lparam, KEYSTROKE_BUFF buf) {
     GetKeyNameTextA((LPARAM)(scan_code << 16), tmp, 8);
 
     strcat_s(buf, KEYSTROKE_BUFF_SIZE, tmp);
+}
+
+SharedDataPtr Core::getSharedData() const {
+    return sharedData;
 }

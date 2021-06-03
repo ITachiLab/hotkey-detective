@@ -33,6 +33,7 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
 LRESULT MainWindow::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                LPARAM lParam) {
     MainWindow *self = MainWindow::instance;
+    char buffer[128];
 
     switch (uMsg) {
         case WM_CREATE:
@@ -40,6 +41,8 @@ LRESULT MainWindow::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
             return 0;
         case WM_NOTIFY:
             self->hotkeyTable.handleWmNotify(lParam);
+            sprintf(buffer, "Refcount: %ld", self->core.getSharedData()->dllRefCount);
+            OutputDebugStringA(buffer);
             return 0;
         case WM_NULL: {
             PROCESS_PATH_BUFF processPathBuffer;
@@ -92,7 +95,7 @@ void MainWindow::createWindow() {
         SendMessage(windowHandle, WM_SETICON, ICON_BIG, (LPARAM)mainIcon);
     }
 
-    core.setMainWindowThreadId(windowHandle);
+    core.setMainWindowHandle(windowHandle);
     core.setHooks();
 }
 

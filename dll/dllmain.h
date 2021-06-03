@@ -1,11 +1,9 @@
 #ifndef HOTKEY_DETECTIVE_INCLUDE_DLLMAIN_H_
 #define HOTKEY_DETECTIVE_INCLUDE_DLLMAIN_H_
 
+#include "../include/ipc.h"
+
 #include <Windows.h>
-
-#define DLL_MESSAGE_ID 0xDEAD
-
-static const wchar_t MMF_NAME[] = L"Local\\HotkeyDetectiveThreadId";
 
 #ifdef __cplusplus
 extern "C" {
