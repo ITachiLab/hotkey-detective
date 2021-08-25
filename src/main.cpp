@@ -9,15 +9,28 @@
 
 #include <HotkeyTable.h>
 #include <MainWindow.h>
+#include <WindowsUtils.h>
+#include <resource.h>
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR cmdLine, int cmdShow) {
+
+    if (!WindowsUtils::isUserAdmin()) {
+        int userSelection = MessageBoxW(
+                nullptr, WindowsUtils::resStr(ID_STRING_ADMIN_WARNING),
+                WindowsUtils::resStr(ID_STRING_APP_NAME),
+                MB_YESNO | MB_ICONWARNING);
+
+        if (userSelection == IDNO) {
+            return 0;
+        }
+    }
 
     MainWindow *window = MainWindow::GetInstance(hInstance);
 
     ShowWindow(window->getHandle(), cmdShow);
 
-    MSG msg = { };
+    MSG msg = {};
 
     while (GetMessageW(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);

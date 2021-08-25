@@ -2,6 +2,9 @@
 #define IDC_STATIC (-1)
 #endif
 
-#define ID_TABLE 101
+#define ID_TABLE_HOTKEYS 101
 
-#define IDI_MAIN_ICON 200
+#define ID_ICON_MAIN 200
+
+#define ID_STRING_APP_NAME      300
+#define ID_STRING_ADMIN_WARNING 301
