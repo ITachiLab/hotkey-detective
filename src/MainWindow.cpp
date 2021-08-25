@@ -27,7 +27,7 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
 
     RegisterClassW(&wc);
 
-    mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_MAIN_ICON));
+    mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(ID_ICON_MAIN));
 }
 
 LRESULT MainWindow::windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,

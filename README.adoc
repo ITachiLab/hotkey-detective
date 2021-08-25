@@ -80,6 +80,12 @@ system.
 
 == Changelog
 
+=== 1.1.0
+
+Added a warning message when trying to run Hotkey Detective as a non-admin user.
+This will greatly improve user experience, especially among users not reading
+readmes (I'm not reading them too, though).
+
 === 1.0.0
 
 The first major that brings up a basic but friendly UI in place of the scary

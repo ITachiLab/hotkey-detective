@@ -5,11 +5,16 @@ add_subdirectory(dll)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# This option will terminate all strings in the resources with proper null
+# characters.
+set(CMAKE_RC_FLAGS "/n")
+
 add_definitions(-DUNICODE)
 
 add_executable(HotkeyDetective WIN32
         src/MainWindow.cpp
         src/HotkeyTable.cpp
+        src/WindowsUtils.cpp
         src/Core.cpp
         src/main.cpp
         res/resources.rc)
