@@ -1,1 +1,10 @@
+# CLion CMake directories
 /cmake-build-*
+
+# Release package
+.zip
+
+# Intermediate build targets
+cmake_*
+Win32
+x64
