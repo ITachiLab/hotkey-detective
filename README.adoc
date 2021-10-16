@@ -12,14 +12,14 @@ hotkey, and prevents me from "zażółcania gęślej jaźni".
 Hotkey Detective is shipped as a ZIP archive and can be downloaded from the
 "Releases" page.
 
-Every archive contains two directories: `x64` and `x86`. For x64 Windows, you
+Every archive contains two directories: `x64` and `Win32`. For x64 Windows, you
 will of course run the executable from the `x64` directory but if it didn't find
-the hotkey, then try x86 version. For x86 Windows you don't have much choices,
-you just run the x86 version.
+the desired hotkey, then try Win32 version. For x86 Windows you can run only the
+Win32 version.
 
 === Running steps
 
-1. Enter the appropriate (x64 or x86) directory.
+1. Enter the appropriate (x64 or Win32) directory.
 2. Run `HotkeyDetective.exe` *as administrator*.
 3. If the window pops up without errors, press the stolen hotkey and Hotkey
 Detective will show you a path to the guilty process.
@@ -51,13 +51,13 @@ and Hotkey Detective will show you what process received the command.
 
 === I don't see any results in the table.
 
-Try running both versions (x86 and x64) when you are using x64 Windows. If you
+Try running both versions (Win32 and x64) when you are using x64 Windows. If you
 are unsure about your system's platform, still try both of them, x64 won't run
 on x86 platform anyway.
 
 Remember to always run it with administrator privileges.
 
-=== I did all of the above, and I still don't see any results.
+=== I did all the steps, and I still don't see any results.
 
 Make sure the hotkey you are trying is truly global. By "truly" I mean it's
 registered with the system and can be triggered even when the owning application
@@ -74,9 +74,32 @@ order to spy on hotkeys. When Hotkey Detective is closed, the DLL is still
 present in the processes, and you simply can't remove something the system is
 using.
 
-Unloading the DLL from foreign processes is tricky and I'm currently working on
+Unloading the DLL from foreign processes is tricky, and I'm currently working on
 it. For the time being, as a workaround I can only suggest restarting your
 system.
+
+== Building
+
+In order to build Hotkey Detective, you have to meet a few requirements:
+
+.CMake
+Version at least 3.17.
+
+.Microsoft Visual Studio
+You need this for compiling. I personally use "Visual Studio 15 2017" and that
+works for me very well. You can try with other versions too, but remember to
+change CMake's generator in `Makefile`.
+
+.Cygwin
+Mainly for shell tools like: `make` or `zip`.
+
+CAUTION: Make sure there's no CMake installed in Cygwin. In other case, Cygwin's
+CMake will take precedence over the system's CMake, however it doesn't support
+Visual Studio generators.
+
+When all required tools are prepared, you are ready to build Hotkey Detective.
+Simply run `make release` from Cygwin's shell and let it do its job. Soon after,
+an archive with built binaries will be created in the project's root directory.
 
 == Changelog
 
