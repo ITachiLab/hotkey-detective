@@ -15,7 +15,9 @@ Key Key::fromWindowMessage(LPARAM lParam) {
   const long keyCode = strokeData->scanCode << 16 | strokeData->extendedKey
                                                         << 24;
 
-  GetKeyNameText(keyCode, buffer, nameMaxLen);
+  // ORing with (1 << 25) to make GetKeyNameText don't care about whether this
+  // is right or left modifier key.
+  GetKeyNameText(keyCode | 1 << 25, buffer, nameMaxLen);
 
   key.virtualKeyCode = MapVirtualKey(strokeData->scanCode, MAPVK_VSC_TO_VK);
   key.pressed = !strokeData->released;
@@ -53,4 +55,9 @@ std::wstring KeySequence::getCombinationString() const {
   output += normalKey.getName();
 
   return output;
+}
+
+void KeySequence::clear() {
+  modifiers.clear();
+  normalKeyPressed = false;
 }

@@ -152,6 +152,11 @@ class KeySequence final {
   void addKeyStroke(Key& key);
 
   /*!
+   * \brief Clear the sequence, effectively making it like a pristine instance.
+   */
+  void clear();
+
+  /*!
    * \brief Check if this KeySequence represents a combination of at least one
    *        modifier with a normal key.
    *
