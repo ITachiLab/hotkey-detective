@@ -26,14 +26,12 @@
  * belongs to it.
  */
 class MainWindow final {
-  HINSTANCE windowInstance;  //!< An instance of the module associated with the
-                             //!< window
-  HWND windowHandle;         //!< A handle to the window
+  HINSTANCE windowInstance;
+  HWND windowHandle;
+  HICON mainIcon;
 
-  HotkeyTable hotkeyTable;  //!< An instance of the HotkeyTable
-  Core core;                //!< A core utilities
-
-  HICON mainIcon;  //!< A handle of the main icon
+  HotkeyTable hotkeyTable;
+  Core core;
   KeySequence sequencer;
 
   /*!
@@ -78,6 +76,14 @@ class MainWindow final {
    */
   LRESULT windowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+  /*!
+   * \brief Process WM_(SYS)KEY(DOWN/UP) messages.
+   *
+   * @param message the message
+   * @param lParam  the LPARAM assigned to the message
+   */
+  void processWmKeyDownUp(UINT message, LPARAM lParam);
+
  public:
   ~MainWindow();
 
@@ -93,7 +99,7 @@ class MainWindow final {
    *
    * @return A handle of the main window.
    */
-  HWND getHandle() const { return windowHandle; }
+  [[nodiscard]] HWND getHandle() const { return windowHandle; }
 };
 
 #endif  // HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_

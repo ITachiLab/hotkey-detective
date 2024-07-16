@@ -6,8 +6,12 @@
  */
 #include "MainWindow.h"
 
+#include <KeySequence.h>
 #include <commctrl.h>
 
+#include <string>
+
+#include "debug.h"
 #include "resource.h"
 
 static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
@@ -24,17 +28,18 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
   wc.lpszClassName = CLASS_NAME;
   RegisterClass(&wc);
 
-  windowHandle = CreateWindow(CLASS_NAME,
-                              APP_TITLE,
-                              WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
-                              CW_USEDEFAULT,
-                              CW_USEDEFAULT,
-                              600,
-                              300,
-                              nullptr,
-                              nullptr,
-                              windowInstance,
-                              this); // MainWindow instance for WM_CREATE message purposes
+  windowHandle =
+      CreateWindow(CLASS_NAME,
+                   APP_TITLE,
+                   WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
+                   CW_USEDEFAULT,
+                   CW_USEDEFAULT,
+                   600,
+                   300,
+                   nullptr,
+                   nullptr,
+                   windowInstance,
+                   this);  // MainWindow instance for WM_CREATE message purposes
 
   mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(ID_ICON_MAIN));
   if (mainIcon != nullptr) {
@@ -51,9 +56,31 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
       windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 }
 
+void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
+  Key k = Key::fromWindowMessage(lParam);
+  sequencer.addKeyStroke(k);
+
+  if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
+    if (sequencer.isCombination()) {
+      // If we get this far, that means nothing blocked the key combination, so
+      // it can be added to the table as "Unassigned".
+      debugPrint("%ls\n", sequencer.getCombinationString().c_str());
+    }
+  }
+}
+
 LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
                                const WPARAM wParam, const LPARAM lParam) {
   switch (uMsg) {
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+      processWmKeyDownUp(uMsg, lParam);
+      return 0;
+    case WM_KILLFOCUS:
+      sequencer.clear();
+      break;
     case WM_CREATE:
       hotkeyTable.addToWindow(hwnd, windowInstance);
       return 0;
