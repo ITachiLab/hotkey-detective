@@ -41,8 +41,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
   }
 
-  const MainWindow *window = MainWindow::GetInstance(hInstance);
-  ShowWindow(window->getHandle(), nShowCmd);
+  const auto window = MainWindow(hInstance);
+  ShowWindow(window.getHandle(), nShowCmd);
 
   MSG msg = {};
   while (GetMessageW(&msg, nullptr, 0, 0)) {

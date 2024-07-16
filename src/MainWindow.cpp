@@ -12,8 +12,6 @@
 
 static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
 
-MainWindow *MainWindow::instance = nullptr;
-
 MainWindow::MainWindow(const HINSTANCE hInstance)
     : windowInstance(hInstance), windowHandle(), hotkeyTable() {
   INITCOMMONCONTROLSEX icex = {};
@@ -21,25 +19,46 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
   InitCommonControlsEx(&icex);
 
   WNDCLASSW wc = {};
-  wc.lpfnWndProc = windowProc;
+  wc.lpfnWndProc = windowProcDispatcher;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
+  RegisterClass(&wc);
 
-  RegisterClassW(&wc);
+  windowHandle = CreateWindow(CLASS_NAME,
+                              APP_TITLE,
+                              WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
+                              CW_USEDEFAULT,
+                              CW_USEDEFAULT,
+                              600,
+                              300,
+                              nullptr,
+                              nullptr,
+                              windowInstance,
+                              this); // MainWindow instance for WM_CREATE message purposes
 
   mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(ID_ICON_MAIN));
+  if (mainIcon != nullptr) {
+    SendMessage(
+        windowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(mainIcon));
+  }
+
+  core.setMainWindowThreadId(windowHandle);
+  core.setHooks();
+
+  // Keep the MainWindow's instance in the window's extra data, so it can be
+  // later received in the window procedure.
+  SetWindowLongPtr(
+      windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 }
 
 LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
                                const WPARAM wParam, const LPARAM lParam) {
-  MainWindow *self = instance;
-
   switch (uMsg) {
     case WM_CREATE:
-      self->hotkeyTable.addToWindow(hwnd, self->windowInstance);
+      hotkeyTable.addToWindow(hwnd, windowInstance);
       return 0;
     case WM_NOTIFY:
-      self->hotkeyTable.handleWmNotify(lParam);
+      hotkeyTable.handleWmNotify(lParam);
       return 0;
     case WM_NULL: {
       PROCESS_PATH_BUFF processPathBuffer;
@@ -51,13 +70,20 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       Core::keystrokeToString(lParam, keystrokeBuffer);
       Core::getProcessPath(proc_id, processPathBuffer);
 
-      self->hotkeyTable.addEntry(keystrokeBuffer, processPathBuffer);
+      hotkeyTable.addEntry(keystrokeBuffer, processPathBuffer);
 
       return 0;
     }
-    case WM_DESTROY:
-      delete self;
+    case WM_PAINT: {
+      PAINTSTRUCT ps;
+      HDC hdc = BeginPaint(hwnd, &ps);
 
+      // All painting occurs here, between BeginPaint and EndPaint.
+      FillRect(hdc, &ps.rcPaint, reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1)));
+      EndPaint(hwnd, &ps);
+      return 0;
+    }
+    case WM_DESTROY:
       PostQuitMessage(0);
       return 0;
     default:
@@ -67,36 +93,18 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-MainWindow *MainWindow::GetInstance(HINSTANCE hInstance) {
-  if (instance == nullptr) {
-    instance = new MainWindow(hInstance);
-    instance->createWindow();
+LRESULT MainWindow::windowProcDispatcher(const HWND hwnd, const UINT uMsg,
+                                         const WPARAM wParam,
+                                         const LPARAM lParam) {
+  auto thiz =
+      reinterpret_cast<MainWindow *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+  if (thiz == nullptr && uMsg == WM_CREATE) {
+    const auto cs = reinterpret_cast<CREATESTRUCT *>(lParam);
+    thiz = reinterpret_cast<MainWindow *>(cs->lpCreateParams);
   }
 
-  return instance;
-}
-
-void MainWindow::createWindow() {
-  windowHandle = CreateWindowExW(0,
-                                 CLASS_NAME,
-                                 APP_TITLE,
-                                 WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
-                                 CW_USEDEFAULT,
-                                 CW_USEDEFAULT,
-                                 600,
-                                 300,
-                                 nullptr,
-                                 nullptr,
-                                 windowInstance,
-                                 nullptr);
-
-  if (mainIcon != nullptr) {
-    SendMessage(
-        windowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(mainIcon));
-  }
-
-  core.setMainWindowThreadId(windowHandle);
-  core.setHooks();
+  return thiz->windowProc(hwnd, uMsg, wParam, lParam);
 }
 
 MainWindow::~MainWindow() {
