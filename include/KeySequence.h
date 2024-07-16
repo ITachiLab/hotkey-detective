@@ -8,13 +8,13 @@
 
 #pragma pack(1)
 /*!
- * \brief This structure represents data passed to the program from the
- *        WH_KEYBOARD hook.
+ * \brief This structure represents keystroke data. This is how WinApi usually
+ *        transfers details of keystrokes between functions.
  *
  * It's treated like a classical, C-style struct to which binary data can be
  * casted directly. In order to do so, the structure needs to be packed.
  */
-struct WhKeyboardData final {
+struct KeyStrokeData final {
   uint16_t repeatCount;
   uint8_t scanCode;
   bool extendedKey : 1;
@@ -41,13 +41,18 @@ class Key final {
 
  public:
   /*!
-   * \brief Create a new Key instance from data received by KeyboardProc, as a
-   *        result of WH_KEYBOARD hook.
+   * \brief Create a new Key instance from data received by a window procedure.
    *
-   * @param lParam the lParam parameter received in a KeyboardProc
+   * This method can also be used for other procedures carrying keystroke data,
+   * for example: KeyboardProc. WinApi is fairly consistent when it comes to
+   * how the keystrokes are transferred, usually it's the same structure as
+   * KeyStrokeData.
+   *
+   * @param lParam the lParam parameter received in the window procedure for
+   *               WM_KEYDOWN and WM_KEYUP messages
    * @return A new Key object created from details contained in lParam.
    */
-  static Key fromWhKeyboard(LPARAM lParam);
+  static Key fromWindowMessage(LPARAM lParam);
 
   /*!
    * \brief Check if the virtual key code represents a modifier (ALT, SHIFT,
@@ -127,7 +132,8 @@ class KeySequence final {
   const Key emptyKey;
 
   std::set<Key> modifiers;
-  Key normalKey = emptyKey;
+  Key normalKey;
+  bool normalKeyPressed = false;
 
  public:
   /*!
@@ -153,6 +159,17 @@ class KeySequence final {
    *         modifier with a normal key.
    */
   [[nodiscard]] bool isCombination() const;
+
+  /*!
+   * \brief Get a string describing all keys being a part of this key sequence
+   *        delimited with the "+" character.
+   *
+   *
+   *
+   * @return A string consisting of concatenation of all modifiers with the
+   *         normal key.
+   */
+  [[nodiscard]] std::wstring getCombinationString() const;
 };
 
 #endif  // SEQUENCEDETECTOR_H

@@ -7,19 +7,20 @@ bool Key::isModifier(unsigned int virtualKeyCode) {
          virtualKeyCode == VK_MENU;
 }
 
-Key Key::fromWhKeyboard(LPARAM lParam) {
+Key Key::fromWindowMessage(LPARAM lParam) {
   Key key;
-  key.name.reserve(nameMaxLen);
+  wchar_t buffer[nameMaxLen] = {};
 
-  const auto keyboardData = reinterpret_cast<WhKeyboardData*>(&lParam);
-  const long keyCode = keyboardData->scanCode << 16 | keyboardData->extendedKey
-                                                          << 24;
+  const auto strokeData = reinterpret_cast<KeyStrokeData*>(&lParam);
+  const long keyCode = strokeData->scanCode << 16 | strokeData->extendedKey
+                                                        << 24;
 
-  GetKeyNameText(keyCode, LPWSTR(key.name.c_str()), nameMaxLen);
+  GetKeyNameText(keyCode, buffer, nameMaxLen);
 
-  key.virtualKeyCode = MapVirtualKey(keyboardData->scanCode, MAPVK_VSC_TO_VK);
-  key.pressed = !keyboardData->released;
+  key.virtualKeyCode = MapVirtualKey(strokeData->scanCode, MAPVK_VSC_TO_VK);
+  key.pressed = !strokeData->released;
   key.modifier = isModifier(key.virtualKeyCode);
+  key.name = std::wstring(buffer);
 
   return key;
 }
@@ -34,12 +35,22 @@ void KeySequence::addKeyStroke(Key& key) {
   } else {
     if (key.isPressed()) {
       normalKey = std::move(key);
-    } else {
-      normalKey = emptyKey;
     }
+    normalKeyPressed = key.isPressed();
   }
 }
 
 bool KeySequence::isCombination() const {
-  return !modifiers.empty() && normalKey != emptyKey;
+  return !modifiers.empty() && normalKeyPressed;
+}
+
+std::wstring KeySequence::getCombinationString() const {
+  std::wstring output;
+
+  for (const auto& key : modifiers) {
+    output += key.getName() + L" + ";
+  }
+  output += normalKey.getName();
+
+  return output;
 }
