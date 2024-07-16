@@ -11,10 +11,10 @@
 #ifndef HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
 #define HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
 
-#include "HotkeyTable.h"
-#include "Core.h"
-
 #include <windows.h>
+
+#include "Core.h"
+#include "HotkeyTable.h"
 
 #define APP_TITLE L"Hotkey Detective"
 
@@ -26,9 +26,8 @@
  * the window callback procedure must be a static method, and it needs access
  * to the MainWindow instance.
  */
-class MainWindow {
- private:
-  static MainWindow *instance; //!< A singleton instance of this class
+class MainWindow final {
+  static MainWindow *instance;  //!< A singleton instance of this class
 
   /*!
    * \brief Main window procedure callback
@@ -45,14 +44,14 @@ class MainWindow {
   static LRESULT CALLBACK windowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                      LPARAM lParam);
 
-  HINSTANCE windowInstance; //!< An instance of the module associated with the
-                            //!< window
-  HWND windowHandle;        //!< A handle to the window
+  HINSTANCE windowInstance;  //!< An instance of the module associated with the
+                             //!< window
+  HWND windowHandle;         //!< A handle to the window
 
   HotkeyTable hotkeyTable;  //!< An instance of the HotkeyTable
   Core core;                //!< A core utilities
 
-  HICON mainIcon;           //!< A handle of the main icon
+  HICON mainIcon;  //!< A handle of the main icon
 
   /*!
    * \brief Hidden constructor, so the class can be used only as a singleton.
@@ -62,11 +61,21 @@ class MainWindow {
    *
    * @param[in] hInstance an instance of the module associated with the window
    */
-  MainWindow(HINSTANCE hInstance);
+  explicit MainWindow(HINSTANCE hInstance);
+
+  /*!
+   * \brief Set keyboard hooks for the main window.
+   *
+   * Main window hooks are used to detect keystrokes which are not assigned to
+   * any process, in order to provide the user with a feedback and possibly
+   * useful information that either no process owns the global shortcut, or the
+   * process can't be detected by HKD.
+   */
+  void setMainWindowKeyboardHook();
 
  public:
-  virtual ~MainWindow();
- public:
+  ~MainWindow();
+
   /*!
    * \brief Deleted copy constructor, for singleton purposes.
    */
@@ -102,7 +111,7 @@ class MainWindow {
    *
    * @return A handle of the main window.
    */
-  HWND getHandle() { return windowHandle; }
+  HWND getHandle() const { return windowHandle; }
 };
 
-#endif //HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
+#endif  // HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
