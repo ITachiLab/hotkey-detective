@@ -53,6 +53,8 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
   // later received in the window procedure.
   SetWindowLongPtr(
       windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+  SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
