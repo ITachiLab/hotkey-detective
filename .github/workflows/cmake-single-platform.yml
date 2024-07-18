@@ -4,9 +4,8 @@ name: CMake on a single platform
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    tags:
+      - v*
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -37,3 +36,10 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
+    - name: Archive built package
+      uses: actions/upload-artifact@v4
+      with:
+        name: hotkey-detective-${{startsWith(github.ref_name, "v") && gitub.ref_name || "v0.0.0"}}
+        path: |
+          build/HotkeyDetective.exe
+          build/dll/hotkey_hook.dll
