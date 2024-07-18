@@ -12,9 +12,10 @@
 #ifndef HOTKEY_DETECTIVE__HOTKEYTABLE_H_
 #define HOTKEY_DETECTIVE__HOTKEYTABLE_H_
 
-#include <vector>
-
+#include <KeySequence.h>
 #include <windows.h>
+
+#include <vector>
 
 #define HOTKEY_LENGTH 32
 #define TABLE_COLUMNS 2
@@ -23,9 +24,12 @@
  * \brief This is a helper structure containing entries appearing in the main
  *        table.
  */
-struct TableEntry {
-  wchar_t hotkey[HOTKEY_LENGTH]; //!< A string with a key combination
-  wchar_t processPath[MAX_PATH]; //!< A path to the process
+struct TableEntry final {
+  std::wstring hotkey;       //!< A string with a key combination
+  std::wstring processPath;  //!< A string with a path to the process
+
+  TableEntry(std::wstring sequence, std::wstring processPath)
+      : hotkey(std::move(sequence)), processPath(std::move(processPath)) {}
 };
 
 /*!
@@ -35,22 +39,20 @@ struct TableEntry {
  * and modification.
  */
 class HotkeyTable {
- private:
-  HWND tableHwnd;                  //!< A windowHandle to the table
+  HWND tableHwnd;  //!< A windowHandle to the table
 
-  std::vector<TableEntry> entries; //!< A vector of entries displayed on the
-                                   //!< list
- protected:
+  std::vector<TableEntry> entries;  //!< A vector of entries displayed on the
+                                    //!< list
  public:
   /*!
    * \brief Adds a new entry to the table.
    *
    * This method adds a new entry both to the table and to the backing vector.
    *
-   * \param[in] hotkey      a string containing the key combination
-   * \param[in] processPath a wide string containing a path to the process
+   * \param[in] keySequence a string containing the key combination
+   * \param[in] processPath a string containing the path to the process
    */
-  void addEntry(char *hotkey, wchar_t *processPath);
+  void addEntry(std::wstring keySequence, std::wstring processPath);
 
   /*!
    * \brief A WM_NOTIFY handler.
@@ -77,4 +79,4 @@ class HotkeyTable {
   void addToWindow(HWND parentWindow, HINSTANCE hInstance);
 };
 
-#endif //HOTKEY_DETECTIVE__HOTKEYTABLE_H_
+#endif  // HOTKEY_DETECTIVE__HOTKEYTABLE_H_
