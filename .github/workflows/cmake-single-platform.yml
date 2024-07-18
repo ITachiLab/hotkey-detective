@@ -6,6 +6,8 @@ on:
   push:
     tags:
       - v*
+  pull_request:
+    branches: [ "master" ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -39,7 +41,7 @@ jobs:
     - name: Archive built package
       uses: actions/upload-artifact@v4
       with:
-        name: hotkey-detective-${{startsWith(github.ref_name, "v") && gitub.ref_name || "v0.0.0"}}
+        name: hotkey-detective-${{startsWith(github.ref_name, "v") && gitub.ref_name || "SNAPSHOT"}}
         path: |
           build/HotkeyDetective.exe
           build/dll/hotkey_hook.dll
