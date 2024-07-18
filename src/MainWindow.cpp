@@ -11,7 +11,6 @@
 
 #include <string>
 
-#include "debug.h"
 #include "resource.h"
 
 static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
@@ -64,7 +63,8 @@ void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
     if (sequencer.isCombination()) {
       // If we get this far, that means nothing blocked the key combination, so
       // it can be added to the table as "Unassigned".
-      debugPrint("%ls\n", sequencer.getCombinationString().c_str());
+      // debugPrint("%ls\n", sequencer.getCombinationString().c_str());
+      hotkeyTable.addEntry(sequencer.getCombinationString(), L"[Unassigned]");
     }
   }
 }
@@ -88,16 +88,12 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       hotkeyTable.handleWmNotify(lParam);
       return 0;
     case WM_NULL: {
-      PROCESS_PATH_BUFF processPathBuffer;
-      KEYSTROKE_BUFF keystrokeBuffer;
       DWORD proc_id;
-
       GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
 
-      Core::keystrokeToString(lParam, keystrokeBuffer);
-      Core::getProcessPath(proc_id, processPathBuffer);
-
-      hotkeyTable.addEntry(keystrokeBuffer, processPathBuffer);
+      hotkeyTable.addEntry(
+          KeySequence::fromGlobalHotKey(lParam).getCombinationString(),
+          Core::getProcessPath(proc_id));
 
       return 0;
     }
