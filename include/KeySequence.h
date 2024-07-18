@@ -6,13 +6,10 @@
 #include <set>
 #include <string>
 
-#pragma pack(1)
+#pragma pack(push, 1)
 /*!
  * \brief This structure represents keystroke data. This is how WinApi usually
  *        transfers details of keystrokes between functions.
- *
- * It's treated like a classical, C-style struct to which binary data can be
- * casted directly. In order to do so, the structure needs to be packed.
  */
 struct KeyStrokeData final {
   uint16_t repeatCount;
@@ -25,6 +22,20 @@ struct KeyStrokeData final {
 };
 
 /*!
+ * \brief This structure represents key combination data received with WM_HOTKEY
+ *        message.
+ */
+struct GlobalHotKeyData final {
+  uint32_t altDown : 1;
+  uint32_t ctrlDown : 1;
+  uint32_t shiftDown : 1;
+  uint32_t winDown : 1;
+  uint32_t empty: 12;
+  uint32_t virtualKeyCode: 16;
+};
+#pragma pack(pop)
+
+/*!
  * \brief A representation of a key press with a human-friendly name.
  *
  * Each time a key is pressed it's going to be represented by instances of this
@@ -35,11 +46,19 @@ class Key final {
   static constexpr size_t nameMaxLen = 32;
 
   std::wstring name;
-  unsigned int virtualKeyCode = 0;
+  unsigned virtualKeyCode = 0;
   bool pressed = false;
   bool modifier = false;
 
- public:
+  Key(const wchar_t *name, const unsigned virtualKeyCode, const bool pressed)
+    : name(std::wstring(name)),
+      virtualKeyCode(virtualKeyCode),
+      pressed(pressed),
+      modifier(isModifier(virtualKeyCode)) {}
+
+public:
+  explicit Key() = default;
+
   /*!
    * \brief Create a new Key instance from data received by a window procedure.
    *
@@ -55,6 +74,17 @@ class Key final {
   static Key fromWindowMessage(LPARAM lParam);
 
   /*!
+   * \brief Create a new Key instance for the given virtual key code.
+   *
+   * The created Key is assumed to be pressed because there is no point in
+   * creating new instances for released keys.
+   *
+   * @param virtualKeyCode the virtual key code of the pressed key
+   * @return A new Key instance for the given virtual key code.
+   */
+  static Key fromVirtualKeyCode(unsigned virtualKeyCode);
+
+  /*!
    * \brief Check if the virtual key code represents a modifier (ALT, SHIFT,
    *        CTRL).
    *
@@ -62,7 +92,7 @@ class Key final {
    * @return "true" when the virtual key code belongs to ALT, SHIFT or CTRL
    *         keys, "false" when it's a normal key.
    */
-  static bool isModifier(unsigned int virtualKeyCode);
+  [[nodiscard]] static bool isModifier(unsigned int virtualKeyCode);
 
   /*!
    * \brief Check if this key was pressed or released.
@@ -129,13 +159,13 @@ class Key final {
  * \brief A container keeping sequences of keystrokes.
  */
 class KeySequence final {
-  const Key emptyKey;
-
   std::set<Key> modifiers;
   Key normalKey;
   bool normalKeyPressed = false;
 
  public:
+  explicit KeySequence() = default;
+
   /*!
    * \brief Add a new Key stroke to the sequence.
    *
@@ -175,6 +205,18 @@ class KeySequence final {
    *         normal key.
    */
   [[nodiscard]] std::wstring getCombinationString() const;
+
+  /*!
+   * \brief Create a sequence from data provided to WM_HOTKEY message.
+   *
+   * WM_HOTKEY messages are shipped with the full key combination encoded on a
+   * single LPARAM parameter, so the whole sequence can be initialized at once.
+   *
+   * @param lParam the LPARAM parameter of the WM_HOTKEY message
+   * @return A new KeySequnce initialized from the WM_HOTKEY data. The sequence
+   * is always a combination.
+   */
+  static KeySequence fromGlobalHotKey(LPARAM lParam);
 };
 
 #endif  // SEQUENCEDETECTOR_H

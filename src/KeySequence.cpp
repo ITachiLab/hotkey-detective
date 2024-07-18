@@ -8,7 +8,6 @@ bool Key::isModifier(unsigned int virtualKeyCode) {
 }
 
 Key Key::fromWindowMessage(LPARAM lParam) {
-  Key key;
   wchar_t buffer[nameMaxLen] = {};
 
   const auto strokeData = reinterpret_cast<KeyStrokeData*>(&lParam);
@@ -19,12 +18,19 @@ Key Key::fromWindowMessage(LPARAM lParam) {
   // is right or left modifier key.
   GetKeyNameText(keyCode | 1 << 25, buffer, nameMaxLen);
 
-  key.virtualKeyCode = MapVirtualKey(strokeData->scanCode, MAPVK_VSC_TO_VK);
-  key.pressed = !strokeData->released;
-  key.modifier = isModifier(key.virtualKeyCode);
-  key.name = std::wstring(buffer);
+  return {
+    buffer, MapVirtualKey(strokeData->scanCode, MAPVK_VSC_TO_VK),
+        !strokeData->released
+  };
+}
 
-  return key;
+Key Key::fromVirtualKeyCode(const unsigned virtualKeyCode) {
+  wchar_t buffer[nameMaxLen] = {};
+
+  const long scanCode = MapVirtualKey(virtualKeyCode, MAPVK_VK_TO_VSC);
+  GetKeyNameText(scanCode << 16, buffer, nameMaxLen);
+
+  return {buffer, virtualKeyCode, true};
 }
 
 void KeySequence::addKeyStroke(Key& key) {
@@ -55,6 +61,30 @@ std::wstring KeySequence::getCombinationString() const {
   output += normalKey.getName();
 
   return output;
+}
+
+KeySequence KeySequence::fromGlobalHotKey(LPARAM lParam) {
+  KeySequence sequence;
+  const auto hotKeyData = reinterpret_cast<GlobalHotKeyData*>(&lParam);
+
+  if (hotKeyData->altDown) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_MENU));
+  }
+
+  if (hotKeyData->ctrlDown) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_CONTROL));
+  }
+
+  if (hotKeyData->shiftDown) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_SHIFT));
+  }
+
+  if (hotKeyData->winDown) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_LWIN));
+  }
+
+  sequence.normalKey = Key::fromVirtualKeyCode(hotKeyData->virtualKeyCode);
+  return sequence;
 }
 
 void KeySequence::clear() {
