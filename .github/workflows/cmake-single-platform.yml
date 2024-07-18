@@ -41,7 +41,7 @@ jobs:
     - name: Archive built package
       uses: actions/upload-artifact@v4
       with:
-        name: hotkey-detective-${{startsWith(github.ref_name, 'v') && gitub.ref_name || 'SNAPSHOT'}}
+        name: hotkey-detective-${{startsWith(github.ref_name, 'v') && github.ref_name || 'SNAPSHOT'}}
         path: |
           build/HotkeyDetective.exe
           build/dll/hotkey_hook.dll
