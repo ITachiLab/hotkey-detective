@@ -43,5 +43,5 @@ jobs:
       with:
         name: hotkey-detective-${{ startsWith(github.ref_name, 'v') && github.ref_name || 'SNAPSHOT' }}
         path: |
-          ${{ github.workspace }}/build/HotkeyDetective.exe
-          ${{ github.workspace }}/build/dll/hotkey_hook.dll
+          ${{ github.workspace }}/build/Release/HotkeyDetective.exe
+          ${{ github.workspace }}/build/dll/Release/hotkey_hook.dll
