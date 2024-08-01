@@ -11,6 +11,8 @@
 #ifndef HOTKEY_DETECTIVE_SRC_CORE_H_
 #define HOTKEY_DETECTIVE_SRC_CORE_H_
 
+#include <string>
+
 #include <windows.h>
 
 #define KEYSTROKE_BUFF_SIZE 32
@@ -28,8 +30,7 @@ typedef wchar_t PROCESS_PATH_BUFF[MAX_PATH];
  *
  * The Core module automatically creates a memory mapped file when constructed.
  */
-class Core {
- private:
+class Core final {
   HANDLE mappedFileHandle;      //!< A handle of the memory mapped file
 
   HWND *mainWindowHandle;       //!< A pointer to the shared memory where the
@@ -49,20 +50,7 @@ class Core {
    * characters written to the buffer. In case of the error, the returned
    * value is 0.
    */
-  static void getProcessPath(DWORD processId, PROCESS_PATH_BUFF buffer);
-
-  /*!
-   * \brief Converts a keystroke from WM_HOTKEY's lParam to human readable form.
-   *
-   * This function extracts the keystroke from the \c hotkey_lparam \c,
-   * converts it to the string form (like: Alt + A), and writes the result to
-   * \c buf \c.
-   *
-   * @param[in]   hotkey_lparam   an lParam from WM_HOTKEY message
-   * @param[out]  buf             a buffer to which the string representation
-   *                              will be written
-   */
-  static void keystrokeToString(LPARAM hotkey_lparam, KEYSTROKE_BUFF buf);
+  static std::wstring getProcessPath(DWORD processId);
 
   /*!
    * \brief The main constructor, sets up the memory mapped file.
@@ -75,7 +63,7 @@ class Core {
    * TODO: This won't unload the DLL from the injected processes, this must be
    *       done separately in the future.
    */
-  virtual ~Core();
+  ~Core();
 
   /*!
    * \brief Sets the hotkey hook on all processes.

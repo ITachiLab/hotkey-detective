@@ -7,80 +7,56 @@
 
 #include "Core.h"
 
-#include "../dll/dllmain.h"
-
 #include <exception>
 
+#include "../dll/dllmain.h"
+
 Core::Core() {
-    mappedFileHandle = CreateFileMappingW(
-            INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(DWORD),
-            MMF_NAME);
+  mappedFileHandle = CreateFileMappingW(
+      INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(DWORD), MMF_NAME);
 
-    if (!mappedFileHandle) {
-        throw std::exception("Couldn't create a memory mapped file.");
-    }
+  if (!mappedFileHandle) {
+    throw std::exception("Couldn't create a memory mapped file.");
+  }
 
-    mainWindowHandle = (HWND *)MapViewOfFile(mappedFileHandle,
-                                             FILE_MAP_ALL_ACCESS,
-                                             0, 0, sizeof(DWORD));
-    if (!mainWindowHandle) {
-        CloseHandle(mappedFileHandle);
-        throw std::exception("Couldn't create a view of the mapped file.");
-    }
+  mainWindowHandle = (HWND *)MapViewOfFile(
+      mappedFileHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(DWORD));
+  if (!mainWindowHandle) {
+    CloseHandle(mappedFileHandle);
+    throw std::exception("Couldn't create a view of the mapped file.");
+  }
 }
 
 Core::~Core() {
-    UnmapViewOfFile(mainWindowHandle);
-    CloseHandle(mappedFileHandle);
-    UnhookWindowsHookEx(getMessageHookHandle);
-    UnhookWindowsHookEx(wndProcHookHandle);
+  UnmapViewOfFile(mainWindowHandle);
+  CloseHandle(mappedFileHandle);
+  UnhookWindowsHookEx(getMessageHookHandle);
+  UnhookWindowsHookEx(wndProcHookHandle);
 }
 
 void Core::setHooks() {
-    getMessageHookHandle = set_hook(WH_GETMESSAGE);
-    if (!getMessageHookHandle) {
-        throw std::exception("Couldn't hook WM_GETMESSAGE.");
-    }
+  getMessageHookHandle = set_hook(WH_GETMESSAGE);
+  if (!getMessageHookHandle) {
+    throw std::exception("Couldn't hook WM_GETMESSAGE.");
+  }
 
-    wndProcHookHandle = set_hook(WH_CALLWNDPROC);
-    if (!wndProcHookHandle) {
-        UnhookWindowsHookEx(getMessageHookHandle);
-        throw std::exception("Couldn't hook WH_CALLWNDPROC.");
-    }
+  wndProcHookHandle = set_hook(WH_CALLWNDPROC);
+  if (!wndProcHookHandle) {
+    UnhookWindowsHookEx(getMessageHookHandle);
+    throw std::exception("Couldn't hook WH_CALLWNDPROC.");
+  }
 }
 
-void Core::getProcessPath(DWORD processId, PROCESS_PATH_BUFF buffer) {
-    HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, processId);
-    if (!process) {
-        wcscpy_s(buffer, MAX_PATH, L"");
-    }
+std::wstring Core::getProcessPath(const DWORD processId) {
+  HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, processId);
+  if (!process) {
+    return {L""};
+  }
 
-    DWORD written = MAX_PATH;
-    QueryFullProcessImageNameW(process, 0, buffer, &written);
-}
+  wchar_t buffer[MAX_PATH];
+  DWORD written = MAX_PATH;
 
-void Core::keystrokeToString(LPARAM hotkey_lparam, KEYSTROKE_BUFF buf) {
-    char tmp[8] = {0};
-    memset(buf, 0, KEYSTROKE_BUFF_SIZE);
+  QueryFullProcessImageName(process, 0, buffer, &written);
 
-    if (LOWORD(hotkey_lparam) & MOD_ALT) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Alt + ");
-    }
-
-    if (LOWORD(hotkey_lparam) & MOD_CONTROL) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Ctrl + ");
-    }
-
-    if (LOWORD(hotkey_lparam) & MOD_SHIFT) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Shift + ");
-    }
-
-    if (LOWORD(hotkey_lparam) & MOD_WIN) {
-        strcat_s(buf, KEYSTROKE_BUFF_SIZE, "Win + ");
-    }
-
-    UINT scan_code = MapVirtualKeyW(HIWORD(hotkey_lparam), MAPVK_VK_TO_VSC);
-    GetKeyNameTextA((LPARAM)(scan_code << 16), tmp, 8);
-
-    strcat_s(buf, KEYSTROKE_BUFF_SIZE, tmp);
+  return {buffer};
 }

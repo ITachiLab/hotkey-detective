@@ -5,37 +5,50 @@
  * \date    2020-12-01
  */
 
-#include "main.h"
+#include <windows.h>
 
-#include <HotkeyTable.h>
-#include <MainWindow.h>
-#include <WindowsUtils.h>
-#include <resource.h>
+#include "HotkeyTable.h"
+#include "MainWindow.h"
+#include "WindowsUtils.h"
+#include "debug.h"
+#include "resource.h"
 
+/*!
+ * \brief Just a WinMain function.
+ *
+ * @param hInstance[in]     a handle to the current instance of the application
+ * @param hPrevInstance[in] a handle to the previous instance of the application
+ * @param lpCmdLine[in]     the command line for the application
+ * @param nShowCmd[in]      specify how an application is to be displayed when
+ *                          it is opened
+ * @return If the function succeeds, terminating when it receives a WM_QUIT
+ * message, it should return the exit value contained in that message's wParam
+ * parameter. If the function terminates before entering the message loop, it
+ * should return zero.
+ */
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                    PWSTR cmdLine, int cmdShow) {
+                    PWSTR lpCmdLine, int nShowCmd) {
+  allocateConsole();
 
-    if (!WindowsUtils::isUserAdmin()) {
-        int userSelection = MessageBoxW(
-                nullptr, WindowsUtils::resStr(ID_STRING_ADMIN_WARNING),
-                WindowsUtils::resStr(ID_STRING_APP_NAME),
-                MB_YESNO | MB_ICONWARNING);
-
-        if (userSelection == IDNO) {
-            return 0;
-        }
+  if (!WindowsUtils::isUserAdmin()) {
+    if (const int userSelection =
+            MessageBoxW(nullptr,
+                        WindowsUtils::resStr(ID_STRING_ADMIN_WARNING),
+                        WindowsUtils::resStr(ID_STRING_APP_NAME),
+                        MB_YESNO | MB_ICONWARNING);
+        userSelection == IDNO) {
+      return 0;
     }
+  }
 
-    MainWindow *window = MainWindow::GetInstance(hInstance);
+  const auto window = MainWindow(hInstance);
+  ShowWindow(window.getHandle(), nShowCmd);
 
-    ShowWindow(window->getHandle(), cmdShow);
+  MSG msg = {};
+  while (GetMessageW(&msg, nullptr, 0, 0)) {
+    TranslateMessage(&msg);
+    DispatchMessageW(&msg);
+  }
 
-    MSG msg = {};
-
-    while (GetMessageW(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessageW(&msg);
-    }
-
-    return 0;
+  return 0;
 }

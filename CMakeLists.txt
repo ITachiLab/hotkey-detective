@@ -16,6 +16,7 @@ add_executable(HotkeyDetective WIN32
         src/HotkeyTable.cpp
         src/WindowsUtils.cpp
         src/Core.cpp
+        src/KeySequence.cpp
         src/main.cpp
         res/resources.rc)
 
