@@ -3,6 +3,6 @@ project(hotkey_hook)
 
 add_definitions(-DDLL_COMPILE)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
 
-add_library(hotkey_hook SHARED dllmain.c)
+add_library(hotkey_hook SHARED HkdHook.cpp)
