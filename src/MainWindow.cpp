@@ -8,6 +8,7 @@
 
 #include <KeySequence.h>
 #include <commctrl.h>
+#include <debug.h>
 
 #include <string>
 
@@ -46,15 +47,13 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
         windowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(mainIcon));
   }
 
-  core.setMainWindowThreadId(windowHandle);
+  core.setMainWindowHandle(windowHandle);
   core.setHooks();
 
   // Keep the MainWindow's instance in the window's extra data, so it can be
   // later received in the window procedure.
   SetWindowLongPtr(
       windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
-  SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
 void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
@@ -106,6 +105,19 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       // All painting occurs here, between BeginPaint and EndPaint.
       FillRect(hdc, &ps.rcPaint, reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1)));
       EndPaint(hwnd, &ps);
+      return 0;
+    }
+    case WM_CLOSE: {
+      int waitRounds = 10;
+      core.removeHooks();
+      core.setTerminatingEvent();
+
+      while (core.getInjectCount() != 0 && waitRounds--) {
+        debugPrint("Waiting for %d\n", core.getInjectCount());
+        Sleep(1000);
+      }
+
+      DestroyWindow(hwnd);
       return 0;
     }
     case WM_DESTROY:
