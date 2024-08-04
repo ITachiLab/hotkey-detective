@@ -8,7 +8,6 @@
 
 #include <KeySequence.h>
 #include <commctrl.h>
-#include <debug.h>
 
 #include <string>
 
@@ -56,7 +55,7 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
       windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 }
 
-void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
+bool MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
   Key k = Key::fromWindowMessage(lParam);
   sequencer.addKeyStroke(k);
 
@@ -66,19 +65,16 @@ void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
       // it can be added to the table as "Unassigned".
       // debugPrint("%ls\n", sequencer.getCombinationString().c_str());
       hotkeyTable.addEntry(sequencer.getCombinationString(), L"[Unassigned]");
+      return true;
     }
   }
+
+  return false;
 }
 
 LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
                                const WPARAM wParam, const LPARAM lParam) {
   switch (uMsg) {
-    case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
-    case WM_KEYDOWN:
-    case WM_KEYUP:
-      processWmKeyDownUp(uMsg, lParam);
-      return 0;
     case WM_KILLFOCUS:
       sequencer.clear();
       break;

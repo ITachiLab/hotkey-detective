@@ -41,13 +41,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
   }
 
-  const auto window = MainWindow(hInstance);
+  auto window = MainWindow(hInstance);
   ShowWindow(window.getHandle(), nShowCmd);
 
   MSG msg = {};
   while (GetMessageW(&msg, nullptr, 0, 0)) {
-    TranslateMessage(&msg);
-    DispatchMessageW(&msg);
+    switch (msg.message) {
+      case WM_SYSKEYDOWN:
+      case WM_SYSKEYUP:
+      case WM_KEYDOWN:
+      case WM_KEYUP:
+        if (window.processWmKeyDownUp(msg.message, msg.lParam)) {
+          // If the function returns "true" that means the key combination has
+          // been detected, so we must not dispatch the message to other
+          // controls.
+          break;
+        }
+      default:
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
   }
 
   return 0;
