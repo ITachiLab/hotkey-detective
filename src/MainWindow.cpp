@@ -41,7 +41,7 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
                    windowInstance,
                    this);  // MainWindow instance for WM_CREATE message purposes
 
-  mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(ID_ICON_MAIN));
+  mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_MAIN));
   if (mainIcon != nullptr) {
     SendMessage(
         windowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(mainIcon));

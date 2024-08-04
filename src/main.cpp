@@ -33,8 +33,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!WindowsUtils::isUserAdmin()) {
     if (const int userSelection =
             MessageBoxW(nullptr,
-                        WindowsUtils::resStr(ID_STRING_ADMIN_WARNING),
-                        WindowsUtils::resStr(ID_STRING_APP_NAME),
+                        WindowsUtils::resStr(IDS_ELEVATION_WARNING),
+                        WindowsUtils::resStr(IDS_APP_TITLE),
                         MB_YESNO | MB_ICONWARNING);
         userSelection == IDNO) {
       return 0;

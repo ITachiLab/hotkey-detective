@@ -18,8 +18,12 @@ add_executable(HotkeyDetective WIN32
         src/Core.cpp
         src/KeySequence.cpp
         src/main.cpp
-        res/resources.rc)
+        res/project/project.rc)
 
-target_link_libraries(HotkeyDetective hotkey_hook comctl32)
+target_link_libraries(HotkeyDetective
+        hotkey_hook
+        comctl32)
 
-target_include_directories(HotkeyDetective PUBLIC include res)
+target_include_directories(HotkeyDetective PUBLIC
+        include
+        res/project)
