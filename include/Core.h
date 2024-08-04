@@ -11,9 +11,11 @@
 #ifndef HOTKEY_DETECTIVE_SRC_CORE_H_
 #define HOTKEY_DETECTIVE_SRC_CORE_H_
 
+#include <windows.h>
+
 #include <string>
 
-#include <windows.h>
+#include "../dll/HkdHook.h"
 
 #define KEYSTROKE_BUFF_SIZE 32
 
@@ -33,12 +35,13 @@ typedef wchar_t PROCESS_PATH_BUFF[MAX_PATH];
 class Core final {
   HANDLE mappedFileHandle;      //!< A handle of the memory mapped file
 
-  HWND *mainWindowHandle;       //!< A pointer to the shared memory where the
-                                //!< main window's handle will be stored
+  HkdHookData *sharedData;      //!< A pointer to the shared data
 
   HHOOK getMessageHookHandle;   //!< A handle of the WH_GETMESSAGE hook
 
   HHOOK wndProcHookHandle;      //!< A handle of the WH_CALLWNDPROC hook
+
+  HANDLE terminatingEventHandle;
  public:
   /*!
    * \brief Returns a full path of the process EXE by its ID.
@@ -74,6 +77,16 @@ class Core final {
   void setHooks();
 
   /*!
+   * \brief Unhook previously hooked processes.
+   *
+   * This method must be called manually *BEFORE* the terminating event is
+   * signalized. Failing to do so can cause serious issues and applications
+   * crashing because the system could still try to invoke hook procedures from
+   * the no longer existing DLL.
+   */
+  void removeHooks();
+
+  /*!
    * \brief Sets the main window's handle in the shared memory, to use by
    *        hooked processes.
    *
@@ -86,7 +99,30 @@ class Core final {
    *
    * @param handle a handle of the main window
    */
-  void setMainWindowThreadId(HWND handle) { *mainWindowHandle = handle; }
+  void setMainWindowHandle(const HWND handle) {
+    sharedData->hkdWindowHandle = handle;
+  }
+
+  /*!
+   * \brief Get the current number of injected processes.
+   *
+   * @return The number of processes which hold a reference to the DLL. This
+   * value should not be blindly trusted, it is used solely for providing a
+   * feedback to the user.
+   */
+  [[nodiscard]] uint32_t getInjectCount() const {
+    return sharedData->injectCounter;
+  }
+
+  /*!
+   * \brief Signalize the terminating event.
+   *
+   * Once the event is in signalized state, the DLL should unload itself from
+   * all affected processes.
+   */
+  void setTerminatingEvent() const {
+    SetEvent(terminatingEventHandle);
+  }
 };
 
 #endif //HOTKEY_DETECTIVE_SRC_CORE_H_

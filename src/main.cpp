@@ -33,21 +33,34 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   if (!WindowsUtils::isUserAdmin()) {
     if (const int userSelection =
             MessageBoxW(nullptr,
-                        WindowsUtils::resStr(ID_STRING_ADMIN_WARNING),
-                        WindowsUtils::resStr(ID_STRING_APP_NAME),
+                        WindowsUtils::resStr(IDS_ELEVATION_WARNING),
+                        WindowsUtils::resStr(IDS_APP_TITLE),
                         MB_YESNO | MB_ICONWARNING);
         userSelection == IDNO) {
       return 0;
     }
   }
 
-  const auto window = MainWindow(hInstance);
+  auto window = MainWindow(hInstance);
   ShowWindow(window.getHandle(), nShowCmd);
 
   MSG msg = {};
   while (GetMessageW(&msg, nullptr, 0, 0)) {
-    TranslateMessage(&msg);
-    DispatchMessageW(&msg);
+    switch (msg.message) {
+      case WM_SYSKEYDOWN:
+      case WM_SYSKEYUP:
+      case WM_KEYDOWN:
+      case WM_KEYUP:
+        if (window.processWmKeyDownUp(msg.message, msg.lParam)) {
+          // If the function returns "true" that means the key combination has
+          // been detected, so we must not dispatch the message to other
+          // controls.
+          break;
+        }
+      default:
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
   }
 
   return 0;

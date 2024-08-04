@@ -5,6 +5,7 @@
  * \date    2021-01-03
  */
 #include "MainWindow.h"
+#include "CloseDialog.hpp"
 
 #include <KeySequence.h>
 #include <commctrl.h>
@@ -40,24 +41,22 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
                    windowInstance,
                    this);  // MainWindow instance for WM_CREATE message purposes
 
-  mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(ID_ICON_MAIN));
+  mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_MAIN));
   if (mainIcon != nullptr) {
     SendMessage(
         windowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(mainIcon));
   }
 
-  core.setMainWindowThreadId(windowHandle);
+  core.setMainWindowHandle(windowHandle);
   core.setHooks();
 
   // Keep the MainWindow's instance in the window's extra data, so it can be
   // later received in the window procedure.
   SetWindowLongPtr(
       windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-
-  SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
-void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
+bool MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
   Key k = Key::fromWindowMessage(lParam);
   sequencer.addKeyStroke(k);
 
@@ -67,19 +66,16 @@ void MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
       // it can be added to the table as "Unassigned".
       // debugPrint("%ls\n", sequencer.getCombinationString().c_str());
       hotkeyTable.addEntry(sequencer.getCombinationString(), L"[Unassigned]");
+      return true;
     }
   }
+
+  return false;
 }
 
 LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
                                const WPARAM wParam, const LPARAM lParam) {
   switch (uMsg) {
-    case WM_SYSKEYDOWN:
-    case WM_SYSKEYUP:
-    case WM_KEYDOWN:
-    case WM_KEYUP:
-      processWmKeyDownUp(uMsg, lParam);
-      return 0;
     case WM_KILLFOCUS:
       sequencer.clear();
       break;
@@ -106,6 +102,20 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       // All painting occurs here, between BeginPaint and EndPaint.
       FillRect(hdc, &ps.rcPaint, reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1)));
       EndPaint(hwnd, &ps);
+      return 0;
+    }
+    case WM_CLOSE: {
+      CloseDialog::ProcData procData{&core};
+      core.removeHooks();
+      core.setTerminatingEvent();
+
+      DialogBoxParam(nullptr,
+                     MAKEINTRESOURCE(IDD_ON_CLOSE),
+                     hwnd,
+                     CloseDialog::dialogProc,
+                     LPARAM(&procData));
+
+      DestroyWindow(hwnd);
       return 0;
     }
     case WM_DESTROY:
