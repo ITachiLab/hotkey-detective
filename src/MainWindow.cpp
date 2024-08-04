@@ -5,6 +5,7 @@
  * \date    2021-01-03
  */
 #include "MainWindow.h"
+#include "CloseDialog.hpp"
 
 #include <KeySequence.h>
 #include <commctrl.h>
@@ -104,14 +105,15 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       return 0;
     }
     case WM_CLOSE: {
-      int waitRounds = 10;
+      CloseDialog::ProcData procData{&core};
       core.removeHooks();
       core.setTerminatingEvent();
 
-      while (core.getInjectCount() != 0 && waitRounds--) {
-        debugPrint("Waiting for %d\n", core.getInjectCount());
-        Sleep(1000);
-      }
+      DialogBoxParam(nullptr,
+                     MAKEINTRESOURCE(IDD_ON_CLOSE),
+                     hwnd,
+                     CloseDialog::dialogProc,
+                     LPARAM(&procData));
 
       DestroyWindow(hwnd);
       return 0;
