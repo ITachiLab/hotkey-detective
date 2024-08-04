@@ -8,10 +8,12 @@
 #define IDC_PROJECT                     109
 #define IDS_ELEVATION_WARNING           109
 #define IDC_MAIN_TABLE                  110
+#define IDT_CLOSE_TIMER                 111
 #define IDR_MAINFRAME                   128
 #define IDI_MAIN                        129
 #define IDD_ON_CLOSE                    130
 #define IDC_PROGRESS1                   1001
+#define IDC_CLOSE_PROGRESS              1001
 #define IDC_STATIC                      -1
 #define IDC_CLOSE_DESC                  -1
 
@@ -23,6 +25,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1003
-#define _APS_NEXT_SYMED_VALUE           111
+#define _APS_NEXT_SYMED_VALUE           112
 #endif
 #endif
