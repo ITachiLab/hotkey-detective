@@ -1,9 +1,0 @@
-#include "resource.h"
-
-ID_ICON_MAIN ICON "main.ico"
-
-STRINGTABLE
-BEGIN
-    ID_STRING_APP_NAME "Hotkey Detective"
-    ID_STRING_ADMIN_WARNING "You are trying to run Hotkey Detective without administrator privileges. If you proceed, Hotkey Detective won't be able to detect all hotkeys. Are you sure you want to continue?"
-END

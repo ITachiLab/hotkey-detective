@@ -69,7 +69,7 @@ void HotkeyTable::addToWindow(HWND parentWindow, HINSTANCE hInstance) {
                               rcClient.right - rcClient.left,
                               rcClient.bottom - rcClient.top,
                               parentWindow,
-                              (HMENU)ID_TABLE_HOTKEYS,
+                              (HMENU)IDC_MAIN_TABLE,
                               hInstance,
                               NULL);
 

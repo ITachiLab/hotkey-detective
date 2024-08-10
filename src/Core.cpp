@@ -9,38 +9,47 @@
 
 #include <exception>
 
-#include "../dll/dllmain.h"
+#include "../dll/HkdHook.h"
 
 Core::Core() {
-  mappedFileHandle = CreateFileMappingW(
-      INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(DWORD), MMF_NAME);
+  mappedFileHandle = CreateFileMapping(
+      INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(HkdHookData), MMF_NAME);
 
   if (!mappedFileHandle) {
     throw std::exception("Couldn't create a memory mapped file.");
   }
 
-  mainWindowHandle = (HWND *)MapViewOfFile(
-      mappedFileHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(DWORD));
-  if (!mainWindowHandle) {
+  sharedData = static_cast<HkdHookData *>(MapViewOfFile(
+      mappedFileHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(HkdHookData)));
+  if (!sharedData) {
     CloseHandle(mappedFileHandle);
     throw std::exception("Couldn't create a view of the mapped file.");
+  }
+
+  terminatingEventHandle = CreateEvent(nullptr, true, false, TERMINATE_EVENT_NAME);
+  if (GetLastError() == ERROR_ALREADY_EXISTS) {
+    throw std::exception("The event already existed but it shouldn't");
   }
 }
 
 Core::~Core() {
-  UnmapViewOfFile(mainWindowHandle);
+  UnmapViewOfFile(sharedData);
   CloseHandle(mappedFileHandle);
+  CloseHandle(terminatingEventHandle);
+}
+
+void Core::removeHooks() {
   UnhookWindowsHookEx(getMessageHookHandle);
   UnhookWindowsHookEx(wndProcHookHandle);
 }
 
 void Core::setHooks() {
-  getMessageHookHandle = set_hook(WH_GETMESSAGE);
+  getMessageHookHandle = setupHook(WH_GETMESSAGE);
   if (!getMessageHookHandle) {
     throw std::exception("Couldn't hook WM_GETMESSAGE.");
   }
 
-  wndProcHookHandle = set_hook(WH_CALLWNDPROC);
+  wndProcHookHandle = setupHook(WH_CALLWNDPROC);
   if (!wndProcHookHandle) {
     UnhookWindowsHookEx(getMessageHookHandle);
     throw std::exception("Couldn't hook WH_CALLWNDPROC.");

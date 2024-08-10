@@ -82,10 +82,19 @@ class MainWindow final {
    * @param message the message
    * @param lParam  the LPARAM assigned to the message
    */
-  void processWmKeyDownUp(UINT message, LPARAM lParam);
 
  public:
   ~MainWindow();
+
+  /*!
+   * \brief Process WM_KEYDOWN and WM_KEYUP messages in order to detect key
+   *        combinations.
+   *
+   * @param message the message sent to the window
+   * @param lParam  the LPARAM of the message
+   * @return The method returns "true" if the key combination has been detected.
+   */
+  bool processWmKeyDownUp(UINT message, LPARAM lParam);
 
   /*!
    * \brief Constructs the main window from scratch.
