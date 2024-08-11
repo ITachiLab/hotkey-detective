@@ -5,13 +5,13 @@
  * \date    2021-01-03
  */
 #include "MainWindow.h"
-#include "CloseDialog.hpp"
 
 #include <KeySequence.h>
 #include <commctrl.h>
 
 #include <string>
 
+#include "CloseDialog.hpp"
 #include "resource.h"
 
 static constexpr wchar_t CLASS_NAME[] = APP_TITLE;

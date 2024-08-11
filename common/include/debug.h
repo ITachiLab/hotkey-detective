@@ -8,6 +8,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include <cstdio>
+
 #ifndef _DEBUG
 #define debugPrint(fmt, ...)
 #define allocateConsole()

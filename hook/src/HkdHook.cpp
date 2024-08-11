@@ -11,7 +11,7 @@
 #include <string>
 
 static constexpr auto EXPLORER_EXE = L"explorer.exe";
-static constexpr auto HKD_EXE = L"hotkeydetective.exe";
+static constexpr auto HKD_EXE = L"hotkey detective.exe";
 
 static HANDLE sharedDataMapping;
 static HANDLE terminatingEvent;
