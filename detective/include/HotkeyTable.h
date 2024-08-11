@@ -12,10 +12,11 @@
 #ifndef HOTKEY_DETECTIVE__HOTKEYTABLE_H_
 #define HOTKEY_DETECTIVE__HOTKEYTABLE_H_
 
-#include <KeySequence.h>
 #include <windows.h>
 
 #include <vector>
+
+#include "KeySequence.h"
 
 #define HOTKEY_LENGTH 32
 #define TABLE_COLUMNS 2

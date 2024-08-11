@@ -6,12 +6,12 @@
  */
 #include "MainWindow.h"
 
-#include <KeySequence.h>
 #include <commctrl.h>
 
 #include <string>
 
 #include "CloseDialog.hpp"
+#include "KeySequence.h"
 #include "resource.h"
 
 static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
