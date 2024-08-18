@@ -3,6 +3,8 @@
 
 #include <windows.h>
 
+#include <array>
+
 /**
  * The implementation of the Hotkey Tester.
  */
@@ -45,6 +47,11 @@ class TesterWindow final {
    * @param enabled true to register a hotkey, false to unregister
    */
   void TesterWindow::enableRegisterHotKey(bool enabled);
+
+  template <std::size_t N>
+  void enableControlsCollection(
+      const std::array<int, N> &controls, bool newState);
+
  public:
   /**
    * Create a TesterWindow instance.

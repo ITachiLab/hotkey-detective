@@ -18,11 +18,17 @@ INT_PTR TesterWindow::show() const {
 
 TesterWindow::~TesterWindow() { UnregisterHotKey(windowHandle, 1); }
 
+template <std::size_t N>
+void TesterWindow::enableControlsCollection(const std::array<int, N> &controls,
+                                            bool newState) {
+  for (auto id : controls) {
+    EnableWindow(GetDlgItem(windowHandle, id), newState);
+  }
+}
+
 void TesterWindow::enableRegisterHotKey(bool enabled) {
   if (enabled) {
-    for (auto id : rhkControls) {
-      EnableWindow(GetDlgItem(windowHandle, id), false);
-    }
+    enableControlsCollection(rhkControls, false);
 
     std::array<wchar_t, 2> buffer = {};
     GetDlgItemText(getHandle(), IDC_RHK_KEY, buffer.data(), 2);
@@ -30,29 +36,15 @@ void TesterWindow::enableRegisterHotKey(bool enabled) {
 
     unsigned modifiers = 0;
 
-    if (IsDlgButtonChecked(windowHandle, IDC_RHK_SHIFT)) {
-      modifiers |= MOD_SHIFT;
-    }
-
-    if (IsDlgButtonChecked(windowHandle, IDC_RHK_ALT)) {
-      modifiers |= MOD_ALT;
-    }
-
-    if (IsDlgButtonChecked(windowHandle, IDC_RHK_CTRL)) {
-      modifiers |= MOD_CONTROL;
-    }
-
-    if (IsDlgButtonChecked(windowHandle, IDC_RHK_WIN)) {
-      modifiers |= MOD_WIN;
-    }
+    modifiers = IsDlgButtonChecked(windowHandle, IDC_RHK_SHIFT) * MOD_SHIFT |
+                IsDlgButtonChecked(windowHandle, IDC_RHK_ALT) * MOD_ALT |
+                IsDlgButtonChecked(windowHandle, IDC_RHK_CTRL) * MOD_CONTROL |
+                IsDlgButtonChecked(windowHandle, IDC_RHK_WIN) * MOD_WIN;
 
     RegisterHotKey(windowHandle, 1, modifiers, key);
   } else {
     UnregisterHotKey(windowHandle, 1);
-
-    for (auto id : rhkControls) {
-      EnableWindow(GetDlgItem(windowHandle, id), true);
-    }
+    enableControlsCollection(rhkControls, true);
   }
 }
 
