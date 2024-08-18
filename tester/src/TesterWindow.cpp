@@ -1,5 +1,8 @@
 #include "TesterWindow.h"
 
+#include <commctrl.h>
+#include <debug.h>
+
 #include <array>
 #include <exception>
 
@@ -7,6 +10,9 @@
 
 static constexpr std::array<int, 5> rhkControls = {
     IDC_RHK_ALT, IDC_RHK_CTRL, IDC_RHK_KEY, IDC_RHK_SHIFT, IDC_RHK_WIN};
+
+static constexpr std::array<int, 4> wmsControls = {
+    IDC_WMS_ALT, IDC_WMS_CTRL, IDC_WMS_KEY, IDC_WMS_SHIFT};
 
 INT_PTR TesterWindow::show() const {
   return DialogBoxParam(hInstance,
@@ -16,7 +22,10 @@ INT_PTR TesterWindow::show() const {
                         reinterpret_cast<LPARAM>(this));
 }
 
-TesterWindow::~TesterWindow() { UnregisterHotKey(windowHandle, 1); }
+TesterWindow::~TesterWindow() {
+  enableRegisterHotKey(false);
+  enableWmSetHotKey(false);
+}
 
 template <std::size_t N>
 void TesterWindow::enableControlsCollection(const std::array<int, N> &controls,
@@ -26,7 +35,7 @@ void TesterWindow::enableControlsCollection(const std::array<int, N> &controls,
   }
 }
 
-void TesterWindow::enableRegisterHotKey(bool enabled) {
+void TesterWindow::enableRegisterHotKey(const bool enabled) {
   if (enabled) {
     enableControlsCollection(rhkControls, false);
 
@@ -48,26 +57,58 @@ void TesterWindow::enableRegisterHotKey(bool enabled) {
   }
 }
 
+void TesterWindow::enableWmSetHotKey(const bool enabled) {
+  if (enabled) {
+    enableControlsCollection(wmsControls, false);
+
+    std::array<wchar_t, 2> buffer = {};
+    GetDlgItemText(getHandle(), IDC_WMS_KEY, buffer.data(), 2);
+    const unsigned key = LOBYTE(VkKeyScanEx(buffer[0], GetKeyboardLayout(0)));
+
+    unsigned modifiers = 0;
+
+    modifiers =
+        IsDlgButtonChecked(windowHandle, IDC_WMS_SHIFT) * HOTKEYF_SHIFT |
+        IsDlgButtonChecked(windowHandle, IDC_WMS_ALT) * HOTKEYF_ALT |
+        IsDlgButtonChecked(windowHandle, IDC_WMS_CTRL) * HOTKEYF_CONTROL;
+
+    // Documentation of WM_SETHOTKEY is wrong, it says that key should be placed
+    // in the low-order word of wParam, and modifiers in the high-order word of
+    // wParam, while the correct layout is: key in the low byte of the low-order
+    // word, and modifiers in the high byte of the low-order word. The
+    // high-order word is ignored by the system.
+    SendMessage(
+        windowHandle, WM_SETHOTKEY, MAKEWPARAM(MAKEWORD(key, modifiers), 0), 0);
+  } else {
+    enableControlsCollection(wmsControls, true);
+    SendMessage(windowHandle, WM_SETHOTKEY, 0, 0);
+  }
+}
+
 INT_PTR TesterWindow::dialogProc(const HWND hwnd, const UINT uMsg,
                                  const WPARAM wParam, const LPARAM lParam) {
-  switch (uMsg) {
-    case WM_COMMAND:
-      switch (LOWORD(wParam)) {
-        case IDC_RHK_ENABLED:
-          enableRegisterHotKey(IsDlgButtonChecked(hwnd, IDC_RHK_ENABLED));
-      }
-      break;
-    case WM_SYSCOMMAND:
-      if ((wParam & 0xFFF0) == SC_CLOSE) {
-        EndDialog(hwnd, true);
-        return true;
-      }
-      break;
-    default:
-      return false;
+  bool ret = false;
+
+  if (uMsg == WM_COMMAND) {
+    const unsigned loWord = LOWORD(wParam);
+
+    if (loWord == IDC_RHK_ENABLED) {
+      enableRegisterHotKey(IsDlgButtonChecked(hwnd, IDC_RHK_ENABLED));
+      ret = true;
+    } else if (loWord == IDC_WMS_ENABLED) {
+      enableWmSetHotKey(IsDlgButtonChecked(hwnd, IDC_WMS_ENABLED));
+      ret = true;
+    }
+  } else if (uMsg == WM_SYSCOMMAND) {
+    const unsigned param = wParam & 0xFFF0;
+
+    if (param == SC_CLOSE) {
+      EndDialog(hwnd, true);
+      ret = true;
+    }
   }
 
-  return false;
+  return ret;
 }
 
 INT_PTR TesterWindow::dialogProcDispatcher(const HWND hwnd, const UINT uMsg,

@@ -48,6 +48,21 @@ class TesterWindow final {
    */
   void TesterWindow::enableRegisterHotKey(bool enabled);
 
+  /**
+   * Enable or disable hotkey registered with WM_SETHOTKEY message.
+   *
+   * @param enabled true to register a hotkey, false to unregister
+   */
+  void enableWmSetHotKey(bool enabled);
+
+  /**
+   * Enable or disable controls which IDs are in the given array.
+   *
+   * @tparam N the number of elements in the array
+   * @param controls the array with controls' IDs
+   * @param newState the new state of the controls, true to enable them, false
+   *                 to disable
+   */
   template <std::size_t N>
   void enableControlsCollection(
       const std::array<int, N> &controls, bool newState);
