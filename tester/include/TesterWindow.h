@@ -39,6 +39,12 @@ class TesterWindow final {
    */
   INT_PTR dialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+  /**
+   * Enable or disable hotkey registered with RegisterHotkey.
+   *
+   * @param enabled true to register a hotkey, false to unregister
+   */
+  void TesterWindow::enableRegisterHotKey(bool enabled);
  public:
   /**
    * Create a TesterWindow instance.

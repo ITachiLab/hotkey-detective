@@ -1,9 +1,12 @@
 #include "TesterWindow.h"
 
-#include <cstdio>
+#include <array>
 #include <exception>
 
 #include "resource.h"
+
+static constexpr std::array<int, 5> rhkControls = {
+    IDC_RHK_ALT, IDC_RHK_CTRL, IDC_RHK_KEY, IDC_RHK_SHIFT, IDC_RHK_WIN};
 
 INT_PTR TesterWindow::show() const {
   return DialogBoxParam(hInstance,
@@ -13,19 +16,55 @@ INT_PTR TesterWindow::show() const {
                         reinterpret_cast<LPARAM>(this));
 }
 
-TesterWindow::~TesterWindow() {
-  UnregisterHotKey(windowHandle, 1);
+TesterWindow::~TesterWindow() { UnregisterHotKey(windowHandle, 1); }
+
+void TesterWindow::enableRegisterHotKey(bool enabled) {
+  if (enabled) {
+    for (auto id : rhkControls) {
+      EnableWindow(GetDlgItem(windowHandle, id), false);
+    }
+
+    std::array<wchar_t, 2> buffer = {};
+    GetDlgItemText(getHandle(), IDC_RHK_KEY, buffer.data(), 2);
+    const unsigned key = LOBYTE(VkKeyScanEx(buffer[0], GetKeyboardLayout(0)));
+
+    unsigned modifiers = 0;
+
+    if (IsDlgButtonChecked(windowHandle, IDC_RHK_SHIFT)) {
+      modifiers |= MOD_SHIFT;
+    }
+
+    if (IsDlgButtonChecked(windowHandle, IDC_RHK_ALT)) {
+      modifiers |= MOD_ALT;
+    }
+
+    if (IsDlgButtonChecked(windowHandle, IDC_RHK_CTRL)) {
+      modifiers |= MOD_CONTROL;
+    }
+
+    if (IsDlgButtonChecked(windowHandle, IDC_RHK_WIN)) {
+      modifiers |= MOD_WIN;
+    }
+
+    RegisterHotKey(windowHandle, 1, modifiers, key);
+  } else {
+    UnregisterHotKey(windowHandle, 1);
+
+    for (auto id : rhkControls) {
+      EnableWindow(GetDlgItem(windowHandle, id), true);
+    }
+  }
 }
 
 INT_PTR TesterWindow::dialogProc(const HWND hwnd, const UINT uMsg,
                                  const WPARAM wParam, const LPARAM lParam) {
   switch (uMsg) {
-    case WM_INITDIALOG:
-      RegisterHotKey(hwnd, 1, MOD_ALT | MOD_CONTROL, 0x41);
-      return true;
-    case WM_HOTKEY:
-      SetDlgItemText(hwnd, IDC_EDIT1, L"Got it!");
-      return true;
+    case WM_COMMAND:
+      switch (LOWORD(wParam)) {
+        case IDC_RHK_ENABLED:
+          enableRegisterHotKey(IsDlgButtonChecked(hwnd, IDC_RHK_ENABLED));
+      }
+      break;
     case WM_SYSCOMMAND:
       if ((wParam & 0xFFF0) == SC_CLOSE) {
         EndDialog(hwnd, true);
