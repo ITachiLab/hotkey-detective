@@ -3,3 +3,4 @@ BasedOnStyle: Google
 BinPackArguments: false
 PackConstructorInitializers: NextLine
 ColumnLimit: 80
+IncludeBlocks: Regroup

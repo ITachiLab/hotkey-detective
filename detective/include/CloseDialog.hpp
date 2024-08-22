@@ -1,9 +1,10 @@
 #ifndef HOTKEY_DETECTIVE_INCLUDE_CLOSEDIALOG_HPP_
 #define HOTKEY_DETECTIVE_INCLUDE_CLOSEDIALOG_HPP_
 
-#include <Core.h>
 #include <commctrl.h>
 #include <resource.h>
+
+#include "Core.h"
 
 namespace CloseDialog {
 static constexpr unsigned POLL_INTERVAL_MS = 500;

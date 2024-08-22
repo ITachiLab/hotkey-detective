@@ -7,7 +7,6 @@
 
 #include <windows.h>
 
-#include "HotkeyTable.h"
 #include "MainWindow.h"
 #include "WindowsUtils.h"
 #include "debug.h"

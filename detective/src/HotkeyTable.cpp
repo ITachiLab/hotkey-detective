@@ -7,12 +7,12 @@
 
 #include "HotkeyTable.h"
 
-#include <KeySequence.h>
 #include <commctrl.h>
 
 #include <exception>
 #include <utility>
 
+#include "KeySequence.h"
 #include "resource.h"
 
 WCHAR* COLUMN_TITLES[] = {L"Hotkey", L"Process path"};

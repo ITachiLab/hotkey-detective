@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "../dll/HkdHook.h"
+#include "HkdHook.h"
 
 #define KEYSTROKE_BUFF_SIZE 32
 

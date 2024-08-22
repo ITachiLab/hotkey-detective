@@ -10,7 +10,7 @@
 static const wchar_t MMF_NAME[] = L"Local\\HkdSharedData";
 static const wchar_t TERMINATE_EVENT_NAME[] = L"Local\\HkdTerminateEvent";
 
-#pragma pack(4)
+#pragma pack(push, 4)
 /*!
  * \struct HkdHookData
  * \brief The structure with various data shared between Hotkey Detective main
@@ -35,6 +35,7 @@ struct HkdHookData {
    */
   HWND hkdWindowHandle;
 };
+#pragma pack(pop)
 
 #ifdef __cplusplus
 extern "C" {

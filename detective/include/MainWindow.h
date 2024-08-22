@@ -11,11 +11,11 @@
 #ifndef HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
 #define HOTKEY_DETECTIVE_SRC_MAINWINDOW_H_
 
-#include <KeySequence.h>
 #include <windows.h>
 
 #include "Core.h"
 #include "HotkeyTable.h"
+#include "KeySequence.h"
 
 #define APP_TITLE L"Hotkey Detective"
 

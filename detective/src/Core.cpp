@@ -9,7 +9,7 @@
 
 #include <exception>
 
-#include "../dll/HkdHook.h"
+#include "HkdHook.h"
 
 Core::Core() {
   mappedFileHandle = CreateFileMapping(
