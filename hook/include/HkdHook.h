@@ -5,8 +5,7 @@
 
 #include <cstdint>
 
-#define DLL_MESSAGE_ID 0xDEAD
-
+static constexpr wchar_t dllMessage[] = L"HKD_DLL_NOTIFY";
 static const wchar_t MMF_NAME[] = L"Local\\HkdSharedData";
 static const wchar_t TERMINATE_EVENT_NAME[] = L"Local\\HkdTerminateEvent";
 

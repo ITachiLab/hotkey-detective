@@ -30,6 +30,11 @@ Core::Core() {
   if (GetLastError() == ERROR_ALREADY_EXISTS) {
     throw std::exception("The event already existed but it shouldn't");
   }
+
+  dllMessageId = RegisterWindowMessage(dllMessage);
+  if (!dllMessageId) {
+    throw std::exception("Couldn't register the DLL message");
+  }
 }
 
 Core::~Core() {

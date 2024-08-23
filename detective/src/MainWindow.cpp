@@ -73,6 +73,17 @@ bool MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
 
 LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
                                const WPARAM wParam, const LPARAM lParam) {
+  if (uMsg == core.getDllMessageId()) {
+    DWORD proc_id;
+    GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
+
+    hotkeyTable.addEntry(
+        KeySequence::fromGlobalHotKey(lParam).getCombinationString(),
+        Core::getProcessPath(proc_id));
+
+    return 0;
+  }
+
   switch (uMsg) {
     case WM_KILLFOCUS:
       sequencer.clear();
@@ -83,16 +94,6 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
     case WM_NOTIFY:
       hotkeyTable.handleWmNotify(lParam);
       return 0;
-    case WM_NULL: {
-      DWORD proc_id;
-      GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
-
-      hotkeyTable.addEntry(
-          KeySequence::fromGlobalHotKey(lParam).getCombinationString(),
-          Core::getProcessPath(proc_id));
-
-      return 0;
-    }
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);

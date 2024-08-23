@@ -18,6 +18,7 @@ static HANDLE terminatingEvent;
 static HkdHookData *sharedData;
 static HINSTANCE dllHinst;
 static bool injected;
+static unsigned dllMessageId;
 
 /*!
  * \brief The procedure of the terminating thread.
@@ -96,6 +97,11 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved) {
   DisableThreadLibraryCalls(hInst);
 
   if (reason == DLL_PROCESS_ATTACH) {
+    dllMessageId = RegisterWindowMessage(dllMessage);
+    if (!dllMessageId) {
+      return false;
+    }
+
     // No need to inject into explorer.exe, it doesn't like that
     if (checkProcessIs(EXPLORER_EXE)) {
       return false;
@@ -159,10 +165,11 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved) {
 static LRESULT CALLBACK hookGetMessage(int code, WPARAM wParam, LPARAM lParam) {
   if (!checkProcessIs(HKD_EXE)) {
     const MSG *msg = reinterpret_cast<MSG *>(lParam);
+    const unsigned messageType = LOWORD(msg->message);
 
-    if (LOWORD(msg->message) == WM_HOTKEY) {
+    if (messageType == WM_HOTKEY) {
       PostMessageW(sharedData->hkdWindowHandle,
-                   WM_NULL,
+                   dllMessageId,
                    reinterpret_cast<WPARAM>(msg->hwnd),
                    msg->lParam);
     }
@@ -190,7 +197,7 @@ static LRESULT CALLBACK hookWndProc(int code, WPARAM wParam, LPARAM lParam) {
 
     if (LOWORD(cwp->message) == WM_HOTKEY) {
       PostMessageW(sharedData->hkdWindowHandle,
-                   WM_NULL,
+                   dllMessageId,
                    reinterpret_cast<WPARAM>(cwp->hwnd),
                    cwp->lParam);
     }
