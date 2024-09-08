@@ -78,7 +78,7 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
     GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
 
     hotkeyTable.addEntry(
-        KeySequence::fromGlobalHotKey(lParam).getCombinationString(),
+        KeySequence::decode(lParam).getCombinationString(),
         Core::getProcessPath(proc_id));
 
     return 0;

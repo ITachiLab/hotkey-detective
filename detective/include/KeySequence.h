@@ -163,6 +163,27 @@ class KeySequence final {
   Key normalKey;
   bool normalKeyPressed = false;
 
+  /*!
+   * \brief Create a sequence from data provided to WM_HOTKEY message.
+   *
+   * WM_HOTKEY messages are shipped with the full key combination encoded on a
+   * single LPARAM parameter, so the whole sequence can be initialized at once.
+   *
+   * @param lParam the LPARAM parameter of the WM_HOTKEY message
+   * @return A new KeySequnce initialized from the WM_HOTKEY data. The sequence
+   * is always a combination.
+   */
+  static KeySequence fromGlobalHotKey(LPARAM lParam);
+
+  /**
+   * Create a KeySequence from data returned by `WM_GETHOTKEY` message.
+   *
+   * @param keyData the key data returned by `WM_GETHOTKEY` message
+   * @return A KeySequence created from the key data obtained from a
+   * `WM_GETHOTKEY` message.
+   */
+  static KeySequence fromWmGetHotKey(WORD keyData);
+
  public:
   explicit KeySequence() = default;
 
@@ -206,17 +227,14 @@ class KeySequence final {
    */
   [[nodiscard]] std::wstring getCombinationString() const;
 
-  /*!
-   * \brief Create a sequence from data provided to WM_HOTKEY message.
+  /**
+   * Decode hotkey data encoded as `LPARAM` parameter of messages sent by hook
+   * DLL.
    *
-   * WM_HOTKEY messages are shipped with the full key combination encoded on a
-   * single LPARAM parameter, so the whole sequence can be initialized at once.
-   *
-   * @param lParam the LPARAM parameter of the WM_HOTKEY message
-   * @return A new KeySequnce initialized from the WM_HOTKEY data. The sequence
-   * is always a combination.
+   * @param lParam the `LPARAM` of the message sent by the hook DLL
+   * @return A KeySequence created from the data encoded in the message.
    */
-  static KeySequence fromGlobalHotKey(LPARAM lParam);
+  static KeySequence decode(LPARAM lParam);
 };
 
 #endif  // SEQUENCEDETECTOR_H
