@@ -9,7 +9,7 @@ add_library(${PROJECT_NAME} SHARED
 set_target_properties(${PROJECT_NAME} PROPERTIES
         OUTPUT_NAME "hook")
 
-target_link_libraries(${PROJECT_NAME} Shlwapi)
+target_link_libraries(${PROJECT_NAME} HkdCommon Shlwapi)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 
 add_custom_command(TARGET Hook POST_BUILD
