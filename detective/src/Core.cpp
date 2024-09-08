@@ -15,6 +15,11 @@ Core::Core() {
   mappedFileHandle = CreateFileMapping(
       INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, sizeof(HkdHookData), MMF_NAME);
 
+  dllMessageId = RegisterWindowMessage(dllMessage);
+  if (!dllMessageId) {
+    throw std::exception("Couldn't register the DLL message");
+  }
+
   if (!mappedFileHandle) {
     throw std::exception("Couldn't create a memory mapped file.");
   }
@@ -28,12 +33,7 @@ Core::Core() {
 
   terminatingEventHandle = CreateEvent(nullptr, true, false, TERMINATE_EVENT_NAME);
   if (GetLastError() == ERROR_ALREADY_EXISTS) {
-    throw std::exception("The event already existed but it shouldn't");
-  }
-
-  dllMessageId = RegisterWindowMessage(dllMessage);
-  if (!dllMessageId) {
-    throw std::exception("Couldn't register the DLL message");
+    ResetEvent(terminatingEventHandle);
   }
 }
 
@@ -46,6 +46,7 @@ Core::~Core() {
 void Core::removeHooks() {
   UnhookWindowsHookEx(getMessageHookHandle);
   UnhookWindowsHookEx(wndProcHookHandle);
+  UnhookWindowsHookEx(sysMsgFilterHandle);
 }
 
 void Core::setHooks() {
@@ -56,8 +57,12 @@ void Core::setHooks() {
 
   wndProcHookHandle = setupHook(WH_CALLWNDPROC);
   if (!wndProcHookHandle) {
-    UnhookWindowsHookEx(getMessageHookHandle);
     throw std::exception("Couldn't hook WH_CALLWNDPROC.");
+  }
+
+  sysMsgFilterHandle = setupHook(WH_SYSMSGFILTER);
+  if (!sysMsgFilterHandle) {
+    throw std::exception("Couldn't hook WH_SYSMSGFILTER.");
   }
 }
 

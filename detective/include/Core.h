@@ -41,6 +41,8 @@ class Core final {
 
   HHOOK wndProcHookHandle;      //!< A handle of the WH_CALLWNDPROC hook
 
+  HHOOK sysMsgFilterHandle;     //!< A handle of the WH_SYSMSGFILTER hook
+
   HANDLE terminatingEventHandle;
 
   unsigned dllMessageId;
