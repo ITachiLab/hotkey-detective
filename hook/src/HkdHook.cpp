@@ -150,16 +150,18 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID reserved) {
  * hooks.
  *
  * @param messageType the type of the message
+ * @param wParam      the WPARAM of the message
  * @param lParam      the LPARAM of the message
  * @param hwnd        the handle of the window which received the message
  */
-static void handleNormalMessage(WORD messageType, LPARAM lParam, HWND hwnd) {
+static void handleNormalMessage(WORD messageType, WPARAM wParam, LPARAM lParam,
+                                HWND hwnd) {
   if (messageType == WM_HOTKEY) {
     PostMessage(sharedData->hkdWindowHandle,
                 dllMessageId,
                 reinterpret_cast<WPARAM>(hwnd),
                 lParam);
-  } else if (messageType == WM_ACTIVATE) {
+  } else if (messageType == WM_ACTIVATE && wParam == WA_ACTIVE) {
     if (const LRESULT result = SendMessage(hwnd, WM_GETHOTKEY, 0, 0)) {
       const WORD hotkeyData = LOWORD(result);
 
@@ -191,7 +193,7 @@ static LRESULT CALLBACK hookGetMessage(int code, WPARAM wParam, LPARAM lParam) {
     const MSG *msg = reinterpret_cast<MSG *>(lParam);
     const WORD messageType = LOWORD(msg->message);
 
-    handleNormalMessage(messageType, msg->lParam, msg->hwnd);
+    handleNormalMessage(messageType, msg->wParam, msg->lParam, msg->hwnd);
   }
 
   return CallNextHookEx(nullptr, code, wParam, lParam);
@@ -214,7 +216,7 @@ static LRESULT CALLBACK hookWndProc(int code, WPARAM wParam, LPARAM lParam) {
     const CWPSTRUCT *cwp = reinterpret_cast<CWPSTRUCT *>(lParam);
     const WORD messageType = LOWORD(cwp->message);
 
-    handleNormalMessage(messageType, cwp->lParam, cwp->hwnd);
+    handleNormalMessage(messageType, cwp->wParam, cwp->lParam, cwp->hwnd);
   }
 
   return CallNextHookEx(nullptr, code, wParam, lParam);
