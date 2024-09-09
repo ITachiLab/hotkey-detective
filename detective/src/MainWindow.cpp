@@ -7,12 +7,17 @@
 #include "MainWindow.h"
 
 #include <commctrl.h>
+#include <dwmapi.h>
 
 #include <string>
 
 #include "CloseDialog.hpp"
 #include "KeySequence.h"
 #include "resource.h"
+
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
 
 static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
 
@@ -40,10 +45,8 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
                windowInstance,
                this);  // MainWindow instance for WM_NCCREATE message purposes
 
-  if ((mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_MAIN))) != nullptr) {
-    SendMessage(
-        windowHandle, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(mainIcon));
-  }
+  BOOL value = true;
+  DwmSetWindowAttribute(windowHandle, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(value));
 
   core.setMainWindowHandle(windowHandle);
   core.setHooks();
