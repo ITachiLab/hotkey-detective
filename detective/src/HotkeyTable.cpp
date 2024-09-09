@@ -86,6 +86,5 @@ void HotkeyTable::addToWindow(HWND parentWindow, HINSTANCE hInstance) {
     ListView_InsertColumn(tableHwnd, i, &lvc);
   }
 
-  ListView_SetExtendedListViewStyle(tableHwnd,
-                                    LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+  ListView_SetExtendedListViewStyle(tableHwnd, LVS_EX_FULLROWSELECT);
 }
