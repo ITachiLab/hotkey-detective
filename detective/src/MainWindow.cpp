@@ -24,13 +24,19 @@ static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
 MainWindow::MainWindow(const HINSTANCE hInstance)
     : windowInstance(hInstance), windowHandle(), hotkeyTable() {
   INITCOMMONCONTROLSEX icex = {};
-  icex.dwICC = ICC_LISTVIEW_CLASSES;
+  icex.dwICC = ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES;
   InitCommonControlsEx(&icex);
+
+  mainIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MAIN));
+  mainCursor = LoadCursor(nullptr, IDC_ARROW);
 
   WNDCLASSW wc = {};
   wc.lpfnWndProc = windowProcDispatcher;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
+  wc.hIcon = mainIcon;
+  wc.hCursor = mainCursor;
+  wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
   RegisterClass(&wc);
 
   CreateWindow(CLASS_NAME,
@@ -159,5 +165,9 @@ LRESULT MainWindow::windowProcDispatcher(const HWND hwnd, const UINT uMsg,
 MainWindow::~MainWindow() {
   if (mainIcon != nullptr) {
     DestroyIcon(mainIcon);
+  }
+
+  if (mainCursor != nullptr) {
+    DestroyCursor(mainCursor);
   }
 }

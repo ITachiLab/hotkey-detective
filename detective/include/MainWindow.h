@@ -29,6 +29,7 @@ class MainWindow final {
   HINSTANCE windowInstance;
   HWND windowHandle;
   HICON mainIcon;
+  HCURSOR mainCursor;
 
   HotkeyTable hotkeyTable;
   Core core;

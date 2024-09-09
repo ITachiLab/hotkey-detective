@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(Detective)
 
 add_executable(${PROJECT_NAME} WIN32
+        application.manifest
         src/MainWindow.cpp
         src/HotkeyTable.cpp
         src/WindowsUtils.cpp
