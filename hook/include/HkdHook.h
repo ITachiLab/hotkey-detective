@@ -5,8 +5,7 @@
 
 #include <cstdint>
 
-#define DLL_MESSAGE_ID 0xDEAD
-
+static constexpr wchar_t dllMessage[] = L"HKD_DLL_NOTIFY";
 static const wchar_t MMF_NAME[] = L"Local\\HkdSharedData";
 static const wchar_t TERMINATE_EVENT_NAME[] = L"Local\\HkdTerminateEvent";
 
@@ -47,14 +46,23 @@ extern "C" {
 #define LIB_EXPORT __declspec(dllimport)
 #endif
 
-/*!
- * \brief Sets a hook on all running threads.
+/**
+ * Set up a global hook in all running processes.
  *
- * \param[in] hookId   an ID of the hook
- * \return A windowHandle to the hook object, needed to close it later, or NULL
- * when the specified id_hook is not supported.
+ * This method is called from Hotkey Detective application when it starts.
+ * Depending on the supplied `hookType`, a hook of the given type will be set on
+ * every running process to which the user running Hotkey Detective has
+ * permissions, hence it's better to run Hotkey Detective as administrator.
+ *
+ * Once Win32::SetWindowsHookEx is invoked, the DLL will be injected to all
+ * eligible processes, and the chosen hook will be installed.
+ *
+ * @param[in] hookType the type of the hook, valid choices are:
+ *                     `WH_CALLWNDPROC`, `WH_GETMESSAGE` and `WH_SYSMSGFILTER`
+ * @return A handle to the hook object, needed to close it later, or `NULL`
+ *         when the specified hook type is not supported.
  */
-LIB_EXPORT HHOOK setupHook(int hookId);
+LIB_EXPORT HHOOK setupHook(int hookType);
 
 #ifdef __cplusplus
 }

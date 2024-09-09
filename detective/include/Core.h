@@ -41,8 +41,14 @@ class Core final {
 
   HHOOK wndProcHookHandle;      //!< A handle of the WH_CALLWNDPROC hook
 
+  HHOOK sysMsgFilterHandle;     //!< A handle of the WH_SYSMSGFILTER hook
+
   HANDLE terminatingEventHandle;
+
+  unsigned dllMessageId;
+
  public:
+
   /*!
    * \brief Returns a full path of the process EXE by its ID.
    *
@@ -120,9 +126,9 @@ class Core final {
    * Once the event is in signalized state, the DLL should unload itself from
    * all affected processes.
    */
-  void setTerminatingEvent() const {
-    SetEvent(terminatingEventHandle);
-  }
+  void setTerminatingEvent() const { SetEvent(terminatingEventHandle); }
+
+  [[nodiscard]] unsigned getDllMessageId() const { return dllMessageId; }
 };
 
 #endif //HOTKEY_DETECTIVE_SRC_CORE_H_

@@ -1,5 +1,7 @@
 #include "KeySequence.h"
 
+#include <commctrl.h>
+
 bool Key::isModifier(unsigned int virtualKeyCode) {
   // No need to check for VK_L* and VK_R* because they are used only by
   // GeyKeyState() and GetAsyncKeyState() functions.
@@ -85,6 +87,41 @@ KeySequence KeySequence::fromGlobalHotKey(LPARAM lParam) {
 
   sequence.normalKey = Key::fromVirtualKeyCode(hotKeyData->virtualKeyCode);
   return sequence;
+}
+
+KeySequence KeySequence::fromWmGetHotKey(const WORD keyData) {
+  const BYTE virtualKeyCode = LOBYTE(keyData);
+  const BYTE modifiers = HIBYTE(keyData);
+  KeySequence sequence;
+
+  if (modifiers & HOTKEYF_SHIFT) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_SHIFT));
+  }
+
+  if (modifiers & HOTKEYF_CONTROL) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_CONTROL));
+  }
+
+  if (modifiers & HOTKEYF_ALT) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_MENU));
+  }
+
+  if (modifiers & HOTKEYF_EXT) {
+    sequence.modifiers.insert(Key::fromVirtualKeyCode(VK_NONAME));
+  }
+
+  sequence.normalKey = Key::fromVirtualKeyCode(virtualKeyCode);
+  return sequence;
+}
+
+KeySequence KeySequence::decode(const LPARAM lParam) {
+  if (HIWORD(lParam)) {
+    // WM_HOTKEY encodes virtual key code on the high word
+    return fromGlobalHotKey(lParam);
+  }
+
+  // WM_GETHOTKEY encodes both modifier and the key on low word only
+  return fromWmGetHotKey(LOWORD(lParam));
 }
 
 void KeySequence::clear() {

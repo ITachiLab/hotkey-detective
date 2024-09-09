@@ -28,18 +28,17 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
   wc.lpszClassName = CLASS_NAME;
   RegisterClass(&wc);
 
-  windowHandle =
-      CreateWindow(CLASS_NAME,
-                   APP_TITLE,
-                   WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
-                   CW_USEDEFAULT,
-                   CW_USEDEFAULT,
-                   600,
-                   300,
-                   nullptr,
-                   nullptr,
-                   windowInstance,
-                   this);  // MainWindow instance for WM_CREATE message purposes
+  CreateWindow(CLASS_NAME,
+               APP_TITLE,
+               WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
+               CW_USEDEFAULT,
+               CW_USEDEFAULT,
+               600,
+               300,
+               nullptr,
+               nullptr,
+               windowInstance,
+               this);  // MainWindow instance for WM_NCCREATE message purposes
 
   if ((mainIcon = LoadIconW(hInstance, MAKEINTRESOURCE(IDI_MAIN))) != nullptr) {
     SendMessage(
@@ -74,6 +73,17 @@ bool MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
 
 LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
                                const WPARAM wParam, const LPARAM lParam) {
+  if (uMsg == core.getDllMessageId()) {
+    DWORD proc_id;
+    GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
+
+    hotkeyTable.addEntry(
+        KeySequence::decode(lParam).getCombinationString(),
+        Core::getProcessPath(proc_id));
+
+    return 0;
+  }
+
   switch (uMsg) {
     case WM_KILLFOCUS:
       sequencer.clear();
@@ -84,16 +94,6 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
     case WM_NOTIFY:
       hotkeyTable.handleWmNotify(lParam);
       return 0;
-    case WM_NULL: {
-      DWORD proc_id;
-      GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
-
-      hotkeyTable.addEntry(
-          KeySequence::fromGlobalHotKey(lParam).getCombinationString(),
-          Core::getProcessPath(proc_id));
-
-      return 0;
-    }
     case WM_PAINT: {
       PAINTSTRUCT ps;
       HDC hdc = BeginPaint(hwnd, &ps);
@@ -130,15 +130,27 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
 LRESULT MainWindow::windowProcDispatcher(const HWND hwnd, const UINT uMsg,
                                          const WPARAM wParam,
                                          const LPARAM lParam) {
-  auto thiz =
-      reinterpret_cast<MainWindow *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  MainWindow *mainWindow;
 
-  if (thiz == nullptr && uMsg == WM_CREATE) {
-    const auto cs = reinterpret_cast<CREATESTRUCT *>(lParam);
-    thiz = reinterpret_cast<MainWindow *>(cs->lpCreateParams);
+  // WM_NCCREATE is sent to the window before WM_CREATE, making it the ideal
+  // place to store the pointer to the class instance in the window extra data.
+  if (uMsg == WM_NCCREATE) {
+    const auto cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+    mainWindow = reinterpret_cast<MainWindow *>(cs->lpCreateParams);
+    mainWindow->windowHandle = hwnd;
+
+    SetWindowLongPtr(
+        hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(mainWindow));
+  } else {
+    mainWindow =
+        reinterpret_cast<MainWindow *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
   }
 
-  return thiz->windowProc(hwnd, uMsg, wParam, lParam);
+  if (mainWindow) {
+    return mainWindow->windowProc(hwnd, uMsg, wParam, lParam);
+  }
+
+  return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 MainWindow::~MainWindow() {
