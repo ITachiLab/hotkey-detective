@@ -20,6 +20,7 @@ const int COLUMN_WIDTHS[] = {150, 400};
 
 void HotkeyTable::addEntry(std::wstring keySequence, std::wstring processPath) {
   TableEntry entry(std::move(keySequence), std::move(processPath));
+  const auto newEntryIndex = static_cast<int>(entries.size());
 
   LVITEM lvi;
   lvi.pszText = LPWSTR(entry.hotkey.c_str());
@@ -27,9 +28,10 @@ void HotkeyTable::addEntry(std::wstring keySequence, std::wstring processPath) {
   lvi.stateMask = 0;
   lvi.iSubItem = 0;
   lvi.state = 0;
-  lvi.iItem = entries.size();
+  lvi.iItem = newEntryIndex;
 
   ListView_InsertItem(tableHwnd, &lvi);
+  ListView_EnsureVisible(tableHwnd, newEntryIndex, false);
 
   entries.push_back(std::move(entry));
 }
