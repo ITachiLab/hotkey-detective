@@ -9,14 +9,15 @@
 
 #include <commctrl.h>
 
+#include <array>
 #include <exception>
 #include <utility>
 
 #include "KeySequence.h"
 #include "resource.h"
 
-WCHAR* COLUMN_TITLES[] = {L"Hotkey", L"Process path"};
-const int COLUMN_WIDTHS[] = {150, 400};
+constexpr std::array<wchar_t *, 2> columnTitles = {L"Combination", L"Process path"};
+constexpr std::array<int, 2> columnWidths = {150, 400};
 
 void HotkeyTable::addEntry(std::wstring keySequence, std::wstring processPath) {
   TableEntry entry(std::move(keySequence), std::move(processPath));
@@ -30,10 +31,11 @@ void HotkeyTable::addEntry(std::wstring keySequence, std::wstring processPath) {
   lvi.state = 0;
   lvi.iItem = newEntryIndex;
 
-  ListView_InsertItem(tableHwnd, &lvi);
-  ListView_EnsureVisible(tableHwnd, newEntryIndex, false);
-
   entries.push_back(std::move(entry));
+
+  ListView_InsertItem(tableHwnd, &lvi);
+  ListView_SetColumnWidth(tableHwnd, 1, LVSCW_AUTOSIZE);
+  ListView_EnsureVisible(tableHwnd, newEntryIndex, false);
 }
 
 void HotkeyTable::handleWmNotify(LPARAM lParam) {
@@ -79,12 +81,13 @@ void HotkeyTable::addToWindow(HWND parentWindow, HINSTANCE hInstance) {
 
   for (int i = 0; i < TABLE_COLUMNS; i++) {
     lvc.iSubItem = i;
-    lvc.pszText = COLUMN_TITLES[i];
-    lvc.cx = COLUMN_WIDTHS[i];
+    lvc.pszText = columnTitles[i];
+    lvc.cx = columnWidths[i];
     lvc.mask = LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
     ListView_InsertColumn(tableHwnd, i, &lvc);
   }
 
   ListView_SetExtendedListViewStyle(tableHwnd, LVS_EX_FULLROWSELECT);
+  ListView_SetColumnWidth(tableHwnd, 1, LVSCW_AUTOSIZE_USEHEADER);
 }
