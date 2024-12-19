@@ -8,7 +8,9 @@ add_executable(${PROJECT_NAME} WIN32
         src/Core.cpp
         src/KeySequence.cpp
         src/main.cpp
-        res/project/project.rc)
+        res/en_us/en_us.rc)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE UNICODE)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
         OUTPUT_NAME "Hotkey Detective")
@@ -20,4 +22,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         include
-        res/project)
+        res/en_us)
+
+add_subdirectory(res)

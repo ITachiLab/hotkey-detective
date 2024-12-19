@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 # characters.
 set(CMAKE_RC_FLAGS "/n")
 
-add_compile_definitions(-DUNICODE)
-
 add_subdirectory(common)
 add_subdirectory(detective)
 add_subdirectory(hook)

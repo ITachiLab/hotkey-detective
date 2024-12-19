@@ -118,7 +118,7 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       DialogBoxParam(localizationHandle,
                      MAKEINTRESOURCE(IDD_ON_CLOSE),
                      hwnd,
-                     CloseDialog::dialogProc,
+                     reinterpret_cast<DLGPROC>(CloseDialog::dialogProc),
                      LPARAM(&procData));
 
       DestroyWindow(hwnd);

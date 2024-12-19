@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME} SHARED
         src/HkdHook.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES
         OUTPUT_NAME "hook")
+target_compile_definitions(${PROJECT_NAME} PRIVATE UNICODE)
 
 target_link_libraries(${PROJECT_NAME} HkdCommon Shlwapi)
 target_include_directories(${PROJECT_NAME} PUBLIC include)

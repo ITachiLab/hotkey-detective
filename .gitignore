@@ -1,3 +1,6 @@
 /cmake-build-*
 project.aps
 .vs
+x64
+Debug
+build
