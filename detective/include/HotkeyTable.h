@@ -15,6 +15,7 @@
 #include <windows.h>
 
 #include <vector>
+#include <array>
 
 #include "KeySequence.h"
 
@@ -41,10 +42,14 @@ struct TableEntry final {
  */
 class HotkeyTable {
   HWND tableHwnd;  //!< A windowHandle to the table
+  HMODULE localizationHandle;
 
   std::vector<TableEntry> entries;  //!< A vector of entries displayed on the
                                     //!< list
+  std::array<std::wstring, TABLE_COLUMNS> columnTitles{};
+
  public:
+  explicit HotkeyTable(HMODULE localizationHandle);
   /*!
    * \brief Adds a new entry to the table.
    *

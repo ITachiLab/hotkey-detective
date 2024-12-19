@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME} WIN32
         src/main.cpp
         src/TesterWindow.cpp)
 
+target_compile_definitions(${PROJECT_NAME} PRIVATE UNICODE)
 target_include_directories(${PROJECT_NAME} PUBLIC
         include
         res/project)

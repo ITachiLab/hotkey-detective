@@ -18,35 +18,18 @@
     <ClInclude Include="framework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="project.h">
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="project.cpp">
+    <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="project.rc">
+    <ResourceCompile Include="es_es.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="project.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\main.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

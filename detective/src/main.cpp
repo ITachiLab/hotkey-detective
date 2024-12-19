@@ -12,6 +12,8 @@
 #include "debug.h"
 #include "resource.h"
 
+constexpr const auto localizationPath = L"localization.dll";
+
 /*!
  * \brief Just a WinMain function.
  *
@@ -26,21 +28,29 @@
  * should return zero.
  */
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                    PWSTR lpCmdLine, int nShowCmd) {
+                    PWSTR lpCmdLine, int nShowCmd) try {
   allocateConsole();
+  auto localizationHandle = WindowsUtils::loadModule(
+      localizationPath,
+      LOAD_LIBRARY_AS_IMAGE_RESOURCE | LOAD_LIBRARY_AS_DATAFILE);
 
   if (!WindowsUtils::isUserAdmin()) {
-    if (const int userSelection =
-            MessageBoxW(nullptr,
-                        WindowsUtils::resStr(IDS_ELEVATION_WARNING),
-                        WindowsUtils::resStr(IDS_APP_TITLE),
-                        MB_YESNO | MB_ICONWARNING);
+    const auto warningMsg =
+        WindowsUtils::resStr(IDS_ELEVATION_WARNING, localizationHandle.get());
+    // TODO: Should appTitle be localized? This seems redundant, maybe its
+    // better to hardcode this in app
+    const auto appTitle =
+        WindowsUtils::resStr(IDS_APP_TITLE, localizationHandle.get());
+    if (const int userSelection = MessageBoxW(nullptr,
+                                              warningMsg.c_str(),
+                                              appTitle.c_str(),
+                                              MB_YESNO | MB_ICONWARNING);
         userSelection == IDNO) {
-      return 0;
+      return EXIT_SUCCESS;
     }
   }
 
-  auto window = MainWindow(hInstance);
+  auto window = MainWindow(hInstance, localizationHandle.get());
   ShowWindow(window.getHandle(), nShowCmd);
 
   MSG msg = {};
@@ -61,6 +71,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         DispatchMessage(&msg);
     }
   }
-
-  return 0;
+  return EXIT_SUCCESS;
+} catch (const std::exception& e) {
+  const auto errorMsg = WindowsUtils::toWString(e.what());
+  MessageBoxW(
+      NULL, errorMsg.c_str(), L"Hotkey Detective ERROR!", MB_OK | MB_ICONERROR);
+  return EXIT_FAILURE;
 }

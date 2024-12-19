@@ -9,14 +9,21 @@
 
 #include <commctrl.h>
 
-#include <exception>
 #include <utility>
 
 #include "KeySequence.h"
+#include "WindowsUtils.h"
 #include "resource.h"
 
-WCHAR* COLUMN_TITLES[] = {L"Hotkey", L"Process path"};
-const int COLUMN_WIDTHS[] = {150, 400};
+constexpr const int COLUMN_WIDTHS[] = {150, 400};
+
+HotkeyTable::HotkeyTable(const HMODULE localizationHandle)
+    : localizationHandle(localizationHandle) {
+  columnTitles[0] =
+      WindowsUtils::resStr(IDS_COLUMN_KEY_SHORTCUT, localizationHandle);
+  columnTitles[1] =
+      WindowsUtils::resStr(IDS_COLUMN_PROCESS_PATH, localizationHandle);
+}
 
 void HotkeyTable::addEntry(std::wstring keySequence, std::wstring processPath) {
   TableEntry entry(std::move(keySequence), std::move(processPath));
@@ -77,7 +84,7 @@ void HotkeyTable::addToWindow(HWND parentWindow, HINSTANCE hInstance) {
 
   for (int i = 0; i < TABLE_COLUMNS; i++) {
     lvc.iSubItem = i;
-    lvc.pszText = COLUMN_TITLES[i];
+    lvc.pszText = columnTitles[i].data();
     lvc.cx = COLUMN_WIDTHS[i];
     lvc.mask = LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
