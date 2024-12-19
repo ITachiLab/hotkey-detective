@@ -5,6 +5,9 @@
 #define IDC_MYICON                      2
 #define IDD_PROJECT_DIALOG              102
 #define IDS_APP_TITLE                   103
+#define IDS_UNASSIGNED_KEY              104
+#define IDS_COLUMN_KEY_SHORTCUT         105
+#define IDS_COLUMN_PROCESS_PATH         106
 #define IDC_PROJECT                     109
 #define IDS_ELEVATION_WARNING           109
 #define IDC_MAIN_TABLE                  110

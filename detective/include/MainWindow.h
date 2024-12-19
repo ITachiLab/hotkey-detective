@@ -17,7 +17,6 @@
 #include "HotkeyTable.h"
 #include "KeySequence.h"
 
-#define APP_TITLE L"Hotkey Detective"
 
 /*!
  * \brief This is a class wrapping the main window.
@@ -27,9 +26,11 @@
  */
 class MainWindow final {
   HINSTANCE windowInstance;
+  HMODULE localizationHandle;
   HWND windowHandle;
   HICON mainIcon;
-
+  
+  std::wstring appTitle{};
   HotkeyTable hotkeyTable;
   Core core;
   KeySequence sequencer;
@@ -63,7 +64,7 @@ class MainWindow final {
   void setMainWindowKeyboardHook();
 
   /*!
-   * \brief Main wnidow procedure.
+   * \brief Main window procedure.
    *
    * This method processes all main window's messages.
    *
@@ -101,7 +102,7 @@ class MainWindow final {
    *
    * @param[in] hInstance an instance of the module associated with the window
    */
-  explicit MainWindow(HINSTANCE hInstance);
+  explicit MainWindow(HINSTANCE hInstance, HMODULE localizationHandle);
 
   /*!
    * \brief Returns a handle of the main window.

@@ -12,12 +12,18 @@
 
 #include "CloseDialog.hpp"
 #include "KeySequence.h"
+#include "WindowsUtils.h"
 #include "resource.h"
 
-static constexpr wchar_t CLASS_NAME[] = APP_TITLE;
+static constexpr wchar_t CLASS_NAME[] = L"Hotkey Detective";
 
-MainWindow::MainWindow(const HINSTANCE hInstance)
-    : windowInstance(hInstance), windowHandle(), hotkeyTable() {
+MainWindow::MainWindow(const HINSTANCE hInstance,
+                       const HMODULE localizationHandle)
+    : windowInstance(hInstance),
+      localizationHandle(localizationHandle),
+      windowHandle(),
+      appTitle(WindowsUtils::resStr(IDS_APP_TITLE, localizationHandle)),
+      hotkeyTable(localizationHandle) {
   INITCOMMONCONTROLSEX icex = {};
   icex.dwICC = ICC_LISTVIEW_CLASSES;
   InitCommonControlsEx(&icex);
@@ -29,7 +35,7 @@ MainWindow::MainWindow(const HINSTANCE hInstance)
   RegisterClass(&wc);
 
   CreateWindow(CLASS_NAME,
-               APP_TITLE,
+               appTitle.c_str(),
                WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
                CW_USEDEFAULT,
                CW_USEDEFAULT,
@@ -63,7 +69,9 @@ bool MainWindow::processWmKeyDownUp(const UINT message, const LPARAM lParam) {
       // If we get this far, that means nothing blocked the key combination, so
       // it can be added to the table as "Unassigned".
       // debugPrint("%ls\n", sequencer.getCombinationString().c_str());
-      hotkeyTable.addEntry(sequencer.getCombinationString(), L"[Unassigned]");
+      hotkeyTable.addEntry(
+          sequencer.getCombinationString(),
+          WindowsUtils::resStr(IDS_UNASSIGNED_KEY, localizationHandle));
       return true;
     }
   }
@@ -77,9 +85,8 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
     DWORD proc_id;
     GetWindowThreadProcessId(reinterpret_cast<HWND>(wParam), &proc_id);
 
-    hotkeyTable.addEntry(
-        KeySequence::decode(lParam).getCombinationString(),
-        Core::getProcessPath(proc_id));
+    hotkeyTable.addEntry(KeySequence::decode(lParam).getCombinationString(),
+                         Core::getProcessPath(proc_id));
 
     return 0;
   }
@@ -108,7 +115,7 @@ LRESULT MainWindow::windowProc(const HWND hwnd, const UINT uMsg,
       core.removeHooks();
       core.setTerminatingEvent();
 
-      DialogBoxParam(nullptr,
+      DialogBoxParam(localizationHandle,
                      MAKEINTRESOURCE(IDD_ON_CLOSE),
                      hwnd,
                      CloseDialog::dialogProc,
